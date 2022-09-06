@@ -1,0 +1,77 @@
+Global structure of Directory and package:
+Package is mag_vec_fem 
+    subpackage: fem_base (contains all basic tools including gauge invariant ones and solving algorithms for the fem computations)
+        gaugeInvariantFEM contains all modified gauge invariant objects, functions an solvers
+        
+    "main" modules (scripts and exploit functions):
+        __main__
+        exploit_functions (contains functions to produce or read data (arrays or plots) by FEM computations)
+        potential_generation_pre_interp (generates and stores alloy type potentials  in npy files containing values in potentials and points in Vq)
+        __init__ (makes it a package)
+        predisposed scripts:
+    		tests (random tests for writing scripts, not necessary)
+    		get_data_eig (produces and stores data in npz files)
+    		get_eigplots (produces and stores data and ploting it)
+    		plotsfromdata (uses stored data to produce all corresponding plots with function saveplots_fromdata)
+    		read_data (produces and stores selected plots from stored data)
+    		ungauged_landscape (solves and plots Hu=1 in the chosen gauge, so it is not necessarily real)
+    	
+    Directories containing data:
+        eigendata (npz files with solutions of magschrö eigenpb)
+        eigenplots (images of all the eigenfunctions of a resolution)
+        loose eigenplots (sparse images used to compare different parameters)
+        pre_interp_pot (npy files with alloy-type potentials, to be interpolated (sigma is by default 2.2))
+        Vq (npy files with potential point coordinates)
+        pycache
+        
+    
+    
+
+
+
+
+
+
+
+I want to solve 1) Hu=[1/2m(P+eA)^2 +V]u=1 
+                2) Hpsi=Epsi
+In a box with Dirichlet BC
+Input: mesh size h, magnetic field B, gauge choice landau or sym.
+
+New PDE structure:same but instead of Loperator structure, L_A operator structure
+L_A op structure take A0,V (a0)
+setAData (A,Th) gives circulation along edges of A: D+1*D+1*nme array
+
+I) build the mesh 
+    h->Th,     mesh structure (d dim of the problem, q array of vertices, nq number of vertices, nme number of elements, connections me(i,k)=j, number of boundary elements, connections meb(i,k=) vols )
+       Bh      same but with ordered indices IBh: ordered list of vertex indices 
+
+II) build operators:
+    i) discretize input:
+        V : weighted mass  operator structure:  D_V=Lmass(V)
+        A : vector potential in some gauge : phi_A[i,j,k]=exp(ie/hbar int_i(k)->j(k) A.dl), 
+            mu= LStiff,
+            KgP1_Optv3_A_A: for i,j, kg(i,j)+=-mu_ij phi_ij
+                                     kg(j,i)+=-mu_ij phi_ji
+                                     kg(i,i)+=mu_ij
+                                     Kg(j,j)+=mu_ij
+        
+
+
+
+h->Th mesh
+B,Gauge, V -> A,V
+A, V->L_A operator structure
+InitPDE(Op_A, Th)->pde_A
+solvePDE(pde)->solution
+    '--->construct  matrix with DAssembly_P1_base(pde)   ---->modified to pde_A
+                                        '--->sparse construction: gets indices I,J,K with f° igjgP1_optv3 and KgP1_Optv3
+                                                                                                                '----> for each part of the operator, build vectorized terms with operator structure
+                    RHS with f° RHS(pde)
+                    boundary/free indices with Dirichlet/Robin (pde) functions
+        solve system
+
+
+
+
+train check: def of x w/ lambda
