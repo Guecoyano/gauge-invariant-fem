@@ -103,7 +103,15 @@ def gauss_pot(V,sigma,N,L,x):
     q=np.array([A[i].ravel() for i in range(2)]).T
     q=q[:,range(2-1,-1,-1)]
     return M*(1/t),q
-  
+
+def pot_from_funct(funct,N):
+    """first argument should be a string describing a function on (x,y) in[-10,10]^2"""
+    m=np.zeros((N+1,N+1))
+    for i in range(N+1):
+        for j in range(N+1):
+            m[i,j]=funct(10*i/N,10*j/N)
+    return m
+
 def interpolate_pot(value_grid,points,q):
   values=np.ravel(value_grid)
   V=griddata(points,values,q)
