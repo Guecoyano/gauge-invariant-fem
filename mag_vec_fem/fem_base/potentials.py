@@ -106,10 +106,10 @@ def gauss_pot(V,sigma,N,L,x):
 
 def pot_from_funct(funct,N):
     """first argument should be a string describing a function on (x,y) in[-10,10]^2"""
-    m=np.zeros((N+1,N+1))
-    for i in range(N+1):
-        for j in range(N+1):
-            m[i,j]=funct(10*i/N,10*j/N)
+    m=np.zeros((N,N))
+    for i in range(N):
+        for j in range(N):
+            m[i,j]=funct(10*i/(N-1),10*j/(N-1))
     return m
 
 def interpolate_pot(value_grid,points,q):

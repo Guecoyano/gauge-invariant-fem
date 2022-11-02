@@ -1,18 +1,20 @@
 from exploit_fun import *
 res_path=res_path_f()
 
-lnm=100
-h=0.002
-pot_version=1
+lnm=200
+h=0.01
+pot_version=4
 gauge='Sym'
 l=lnm*10**-9
-
-
+N_eig=100
 VmeV,Th=vth_data(res_path,lnm,h,pot_version)
-for B in (5,15):
-    N_eig=100
-    for V_maxmeV in (1000,5000):
-        getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,res_path)
+
+for pot_version in (7,):
+    VmeV,Th=vth_data(res_path,lnm,h,pot_version)
+    for gauge in ('Sym', 'LandauX'):
+        for B in (10,100):
+            for V_maxmeV in (100,):
+                getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,res_path)
 
 #lnm=200
 #VmeV,Th=vth_data(res_path,lnm,h,pot_version)
