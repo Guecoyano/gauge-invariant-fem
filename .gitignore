@@ -7,4 +7,4 @@ mag_vec_fem/Th
 mag_vec_fem/Vq
 mag_vec_fem/__pycache__
 mag_vec_fem/fem_base/__pycache__
-mag_vec_fem/eigenfunctions
+eigenfunctions
