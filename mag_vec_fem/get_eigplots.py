@@ -1,12 +1,12 @@
 from exploit_fun import *
 res_path=res_path_f()
 
-N_eig=10
-lnm=100
-B=30
-V_maxmeV=0 
-h=0.1
-pot_version=1
+N_eig=20
+lnm=200
+B=3
+V_maxmeV=5 
+h=0.01
+pot_version=7
 gauge='Sym'
 l=lnm*10**-9
 

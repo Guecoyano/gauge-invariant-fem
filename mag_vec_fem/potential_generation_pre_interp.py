@@ -11,7 +11,7 @@ eV=1.60217663 *10**-19
         pot,q_pot=gauss_pot(eV,2.2,int(l/0.56),l*10**-9,0.15)
         name=res_path+'pre_interp_pot/pre_interp_potv'+str(v)+'l'+str(l)+'E1eVx15.npy'
         np.save(name,pot)
-    np.save(res_path+'Vq/Vql'+str(l),q_pot)
+    np.save(res_path+'/Vq/Vql'+str(l),q_pot)
 '''
 v=6
 for f in (lambda x,y:2*exp(-0.1*((x-8)**2+(y-8)**2))-3*exp(-0.3*((x-5.5)**2+(y-1)**2))+4/((x-2)**2+(y-5)**2+1),lambda x,y:4*(1-1/((x-5)**2/2+(y-4)**2/4+1))):
