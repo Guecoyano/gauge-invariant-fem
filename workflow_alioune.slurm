@@ -11,10 +11,8 @@ echo "-=-"
 cat workflow.slurm
 module purge
 
-python store_xy_2d.py _50
-mpirun -np 10 -hosts $SLURM_JOB_NODELIST python calc_eigen_couplings_hybrid_parallel.py _50
-python find_fundamentals.py _50
-
+python mag_vec_fem/get_data_eig.py
+python mag_vec_fem/plotsfromdata.py
 
 # python ma_2d_all_purpose.py _50 400
 

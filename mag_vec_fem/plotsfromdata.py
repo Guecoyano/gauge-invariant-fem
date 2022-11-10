@@ -3,17 +3,29 @@ import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
 
 res_path=res_path_f()
-lnm=100
-V_maxmeV=50
-h=0.002
-pot_version=1
+lnm=200
+h=0.001
 gauge='Sym'
 N_eig=100
-n=0
 Th=HyperCube(2,int(1/h),l=lnm*10**-9)
-for b in (30,):
-    for V in (150,):
-        dat_file=datafile(res_path,lnm,b,V_maxmeV,h,pot_version,gauge,N_eig)
-        saveplots_fromdata(Th,dat_file,'l100B30V150v1h500',res_path)
-        n+=1
 
+B=1
+V_maxmeV=10
+for pot_version in (7,8):
+    dat_file=datafile(res_path,lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+    name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
+    saveplots_fromdata(Th,dat_file,name_preeig,res_path)
+
+B=5
+for V_maxmeV in (1,10,100):
+    for pot_version in (5,6,7,8):
+        dat_file=datafile(res_path,lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+        name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
+        saveplots_fromdata(Th,dat_file,name_preeig,res_path)
+B=10
+for pot_version in (7,8):
+    for V_maxmeV in (1,10,100):
+        for gauge in ('Sym','LandauX'):
+            dat_file=datafile(res_path,lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+            name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
+            saveplots_fromdata(Th,dat_file,name_preeig,res_path)
