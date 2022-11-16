@@ -1,8 +1,9 @@
+# coding=utf-8
 import fem_base.gaugeInvariantFEM as gi
 from fem_base.mesh import HyperCube
 from fem_base.graphics import *
 from fem_base.potentials import interpolate_pot
-from exploit_fun import *
+from fem_base.exploit_fun import *
 from os import *
 
 pot_version=0
@@ -11,7 +12,7 @@ h=0.005
 gauge='Sym'
 l=lnm*10**-9
 N_eig=100
-res_path=res_path_f()
+res_path=data_path
 '''for pot_version in range(9):
     for lnm in (50,100,200,500,1000):
         nameV=res_path+'/pre_interp_pot/'+'pre_interp_potv'+str(pot_version)+'l'+str(lnm)+'E1eVx15.npy'
@@ -35,9 +36,9 @@ B=1
 for pot_version in (7,):
     for V_maxmeV in (1,):
         for gauge in ('LandauX',):
-            VmeV,Th=vth_data(res_path,lnm,h,pot_version)
-            getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,res_path)
+            VmeV,Th=vth_data(lnm,h,pot_version)
+            getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge)
 
-            dat_file=datafile(res_path,lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+            dat_file=datafile(lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
             name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
-            saveplots_fromdata(Th,dat_file,name_preeig,res_path)
+            saveplots_fromdata(Th,dat_file,name_preeig)

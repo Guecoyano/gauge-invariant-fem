@@ -1,5 +1,10 @@
-from exploit_fun import *
-res_path=res_path_f()
+# coding=utf-8
+from fem_base.exploit_fun import *
+import os
+from fem_base.exploit_fun import data_path
+
+res_path=data_path
+
 
 N_eig=10
 lnm=100
@@ -11,7 +16,7 @@ gauge='Sym'
 l=lnm*10**-9
 
 
-VmeV,Th=vth_data(res_path,lnm,h,pot_version)
+VmeV,Th=vth_data(lnm,h,pot_version)
 
 
-getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,res_path)
+getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge)

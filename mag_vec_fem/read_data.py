@@ -1,8 +1,9 @@
-from exploit_fun import datafile, read_eigplot, res_path_f
+# coding=utf-8
+from fem_base.exploit_fun import datafile, read_eigplot, data_path
 import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
 
-res_path=res_path_f()
+res_path=data_path
 lnm=200
 V_maxmeV=50
 h=0.01
@@ -23,7 +24,7 @@ plt.close('all')
 for b in (10,):
     for Num in (1,2,3,4,50,53,54,55,56,70,71,72,73,74,75,80):
         for V_maxmeV in (100,):
-            dat_file=datafile(res_path,lnm,b,V_maxmeV,h,pot_version,gauge,N_eig)
+            dat_file=datafile(lnm,b,V_maxmeV,h,pot_version,gauge,N_eig)
             read_eigplot(n,lnm,b,Th,dat_file,Num,'modulus')
             n+=1
 plt.show()
