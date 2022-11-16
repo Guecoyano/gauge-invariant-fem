@@ -1,5 +1,5 @@
 # coding=utf-8
-from fem_base.exploit_fun import datafile, saveplots_fromdata, res_path_f
+from fem_base.exploit_fun import datafile, saveplots_fromdata, data_path
 import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
 
