@@ -4,7 +4,6 @@ mag_vec_fem/data/loose_eigenplots
 mag_vec_fem/meshes
 mag_vec_fem/samples
 mag_vec_fem/data/Th
-mag_vec_fem/data/Vq
 mag_vec_fem/__pycache__
 mag_vec_fem/fem_base/__pycache__
 eigenfunctions

@@ -8,10 +8,15 @@
 
 echo "Job started on `date`"
 echo "-=-"
-cat workflow.slurm
+cat workflow_alioune.slurm
 module purge
+module load python-anaconda3-2019
 
+echo "getting eigen values and functions and store in files"
 python mag_vec_fem/get_data_eig.py
+
+echo.
+echo "getting eigenplots from obtained data"
 python mag_vec_fem/plotsfromdata.py
 
 # python ma_2d_all_purpose.py _50 400
