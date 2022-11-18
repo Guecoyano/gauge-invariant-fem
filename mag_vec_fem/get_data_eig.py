@@ -3,7 +3,7 @@ from fem_base.exploit_fun import *
 res_path=data_path
 
 lnm=200
-h=0.110
+h=0.001
 gauge='Sym'
 N_eig=100
 
