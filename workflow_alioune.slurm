@@ -11,11 +11,12 @@ echo "-=-"
 cat workflow_alioune.slurm
 module purge
 module load python-anaconda3-2019
+pip install latex --user
 
 echo "getting eigen values and functions and store in files"
 python mag_vec_fem/get_data_eig.py
 
-echo.
+echo .
 echo "getting eigenplots from obtained data"
 python mag_vec_fem/plotsfromdata.py
 
