@@ -11,6 +11,7 @@ echo "-=-"
 cat workflow_alioune.slurm
 module purge
 module load python-anaconda3-2019
+module load texlive
 pip install latex --user
 
 echo "getting eigen values and functions and store in files"
