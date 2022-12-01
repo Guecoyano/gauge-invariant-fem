@@ -11,8 +11,9 @@ lnm=200
 h=0.005
 gauge='Sym'
 l=lnm*10**-9
-N_eig=100
+N_eig=20
 res_path=data_path
+#E_0=hbar*q_e*B/(2*m_e)
 '''for pot_version in range(9):
     for lnm in (50,100,200,500,1000):
         nameV=res_path+'/pre_interp_pot/'+'pre_interp_potv'+str(pot_version)+'l'+str(lnm)+'E1eVx15.npy'
@@ -32,13 +33,15 @@ print(dirname(''))
 print(res_path)'''
 
 h=0.055
-B=1
-for pot_version in (7,):
-    for V_maxmeV in (1,):
+B=2
+E_0=hbar*q_e*B/(2*m_e)
+for pot_version in (6,):
+    for V_maxmeV in (10,):
         for gauge in ('LandauX',):
             VmeV,Th=vth_data(lnm,h,pot_version)
-            getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge)
+            get_eigplots(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,target_energy=6*10**-22)
+            
 
-            dat_file=datafile(lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+            '''dat_file=datafile(lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
             name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
-            saveplots_fromdata(Th,dat_file,name_preeig)
+            saveplots_fromdata(Th,dat_file,name_preeig)'''
