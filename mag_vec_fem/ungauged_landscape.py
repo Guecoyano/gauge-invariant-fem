@@ -1,7 +1,7 @@
 # coding=utf-8
 from itertools import filterfalse
 import fem_base.gaugeInvariantFEM as gi
-
+from fem_base.exploit_fun import *
 import matplotlib.pyplot as plt
 
 from fem_base.FEM import *
@@ -20,15 +20,18 @@ import numpy as np
 plt.close("all")
 
 d=2
-#N=int(input("N="))
-N=25
-B=1
+lnm=200
+h=0.005
+B=10
+pot_version=0
 print("1. Set square mesh")
-Th=HyperCube(d,N)
+#Th=HyperCube(2,int(1/h),l=lnm*10**-9)
+V_maxmeV=100
+VmeV,Th=vth_data(lnm,h,pot_version)
 print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq,Th.nme,Th.nbe));
-
+V=V_maxmeV*VmeV+hbar*q_e*B/(2*m_e)
 print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
-x=gi.getSol(Th=Th,B=B)
+x=gi.getSol(Th=Th,B=0.0000001,V=V)
 
 print("4. Post-processing")
 
@@ -53,6 +56,6 @@ plt.clf()
 PlotBounds(Th,legend=False,color='k')
 plt.axis('off')
 PlotVal(Th,np.abs(x))
-plt.title(r'2D Magnetic Schrödinger : solution (modulus) (mesh $n_q=%d$, $n_{me}=%d$)'%(Th.nq,Th.nme))
+plt.title(r'u0 l=$lnm=%d$'%(lnm))
 plt.show()
 plt.close()

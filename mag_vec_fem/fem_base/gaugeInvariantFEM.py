@@ -68,9 +68,6 @@ def KgP1_OptV3_A_A(Th,D,G,dtype):
           Kg_A[:,j,i]=Kg_A[:,j,i]-np.multiply(mu[:,i,j],phi_A[:,j,i])
   return Kg_A
 
-
-
-
 def phi(A0,Th):
     eoverh=(1.602176634*10**-19)/ (1.054571818*10**-34)
     d1=Th.d+1
@@ -85,7 +82,6 @@ def phi(A0,Th):
                 pA[k,i,j]=exp(complex(0,-eoverh*Akij))
             pA[:,j,i]=np.conjugate(pA[:,i,j])
     return pA
-
 
 def A_LandauX(x,y,B):
     A=np.array([-y*B,0])
