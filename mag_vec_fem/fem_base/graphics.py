@@ -21,13 +21,14 @@ def PlotIsolines(Th,u,**kwargs):
     Fill=kwargs.get('fill', False )
     iso=kwargs.get('iso', None )
     Colorbar=kwargs.get('colorbar', False )
+    color=kwargs.get('color', 'turbo')
     options=kwargs.get('options', None )
     #ColorbarOptions=kwargs.get('ColorbarOptions', {orientation : u'horizontal'} )
     fig = plt.gcf()
     plt.gca().set_aspect('equal')
     if Fill:
       #plt.tricontourf(Th.q[:,0],Th.q[:,1],Th.me, u,N,shading='interp')
-      plt.tripcolor(Th.q[:,0],Th.q[:,1],Th.me, u, shading='gouraud')#, cmap=plt.cm.rainbow)
+      plt.tripcolor(Th.q[:,0],Th.q[:,1],Th.me, u, shading='gouraud', cmap=color)#, cmap=plt.cm.rainbow)
     else:
       #plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,N,colors=coloriso)
       plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,levels=iso,**options)
