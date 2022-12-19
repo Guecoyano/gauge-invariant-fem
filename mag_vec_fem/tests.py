@@ -8,7 +8,7 @@ from os import *
 
 pot_version=0
 lnm=200
-h=0.005
+h=0.05
 gauge='Sym'
 l=lnm*10**-9
 N_eig=20
@@ -32,16 +32,16 @@ print(getcwd())
 print(dirname(''))
 print(res_path)'''
 
-h=0.055
-B=2
+h=0.01
+B=10
 E_0=hbar*q_e*B/(2*m_e)
 for pot_version in (6,):
     for V_maxmeV in (10,):
         for gauge in ('LandauX',):
             VmeV,Th=vth_data(lnm,h,pot_version)
-            get_eigplots(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,target_energy=6*10**-22)
+            getsave_eig(N_eig,lnm,B,VmeV,V_maxmeV,Th,h,pot_version,gauge,target_energy=6*10**-22)
             
 
-            '''dat_file=datafile(lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
+            dat_file=datafile(lnm,B,V_maxmeV,h,pot_version,gauge,N_eig)
             name_preeig='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'v'+str(pot_version)+'h'+str(int(1/h))
-            saveplots_fromdata(Th,dat_file,name_preeig)'''
+            saveplots_fromdata(Th,dat_file,name_preeig,phase=True)
