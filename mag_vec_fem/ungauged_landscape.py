@@ -24,19 +24,19 @@ B=10
 pot_version=0
 print("1. Set square mesh")
 #Th=HyperCube(2,int(1/h),l=lnm*10**-9)
-V_maxmeV=100
-VmeV,Th=vth_data(lnm,h,pot_version)
+V_max=100
+V1,Th=vth_data(lnm,h,pot_version)
 print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq,Th.nme,Th.nbe));
 for B in (30,40):
-    E_s=hbar*q_e*B/(2*m_e)
-    V=V_maxmeV*VmeV+E_s
+    E_s=B/2
+    V=V_max*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
-    x=gi.getSol(Th=Th,B=0.0000000001,V=V)
+    x=gi.getSol(Th=Th,B=0.0,V=V)
     
     print("4. Post-processing")
 
     #in the data name B reps the shift through E_s=hbar*q_e*B/(2*m_e)
-    namedata='l'+str(lnm)+'B'+str(B)+'V'+str(V_maxmeV)+'h'+str(int(1/h))+'v'+str(pot_version)
+    namedata='l'+str(lnm)+'B'+str(B)+'V'+str(V_max)+'h'+str(int(1/h))+'v'+str(pot_version)
     np.savez_compressed(os.path.realpath(os.path.join(res_path,'landscapes',namedata)),q=Th.q,u=x)
 
     '''print('5.   Plot')

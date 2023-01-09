@@ -9,12 +9,11 @@ pot_version=0
 lnm=500
 h=0.005
 gauge='Sym'
-l=lnm*10**-9
 N_eig=100
 res_path=data_path
 for pot_version in range(9):
     for lnm in (50,100,200,500,1000):
         nameV=os.path.realpath(os.path.join(res_path,'pre_interp_pot','pre_interp_potv'+str(pot_version)+'l'+str(lnm)+'E1eVx15.npy'))
         V_unscaled=np.load(nameV)
-        V_scaled=0.001*V_unscaled
+        V_scaled=1/np.max(V_unscaled)*V_unscaled
         np.save(nameV,V_scaled)

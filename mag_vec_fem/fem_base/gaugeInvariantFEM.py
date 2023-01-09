@@ -1,5 +1,10 @@
 """This file aims at defining a gauge invariant discrete operator to approximate (P+eA)^2 in Landau hamiltonian, 
 according to the procedure given by Christiansen and Halvorsen, using the FEM python structure provided by F. Cuvelier et al. pyVECFEMP1
+
+The computations are made not in physical units:
+-1/2m(-i hbar nabla-q A)^2(psi)+V psi =E psi in a box of size lnm
+is re tractable from 
+-(nabla-i A)^2+V psi = E psi in a box of size 1
 Author: Alioune SEYE"""
 
 
@@ -22,7 +27,7 @@ class L_Aoperator:
     self.m=1
     self.A0=kwargs.get('A0', 0)
     self.name=kwargs.get('name', 'No name')
-    self.order=0;
+    self.order=0
     self.V=kwargs.get('V', 0)
     self.order=2
     #for i in range(self.d):
@@ -42,13 +47,11 @@ class L_Aoperator:
 
 def KgP1_OptV3_A(Th,D,G,**kwargs):
   d=Th.d;ndfe=d+1
-  m_e=kwargs.get('m_e',0.07*9*10**-31)
-  hbar=kwargs.get('hbar',1.054571818*10**-34)
   dtype=kwargs.get('dtype', complex)
   Kg=np.zeros((Th.nme,ndfe,ndfe),dtype)
   Kg=Kg+KgP1_OptV3_guv(Th,D.V,dtype)
   G=FEMtools.ComputeGradientVec(Th.q,Th.me,Th.vols)
-  Kg=Kg-(hbar**2)/(2*m_e)*KgP1_OptV3_A_A(Th,D,G,dtype)
+  Kg=Kg-KgP1_OptV3_A_A(Th,D,G,dtype)
   return Kg
 
 def KgP1_OptV3_A_A(Th,D,G,dtype):
@@ -69,7 +72,6 @@ def KgP1_OptV3_A_A(Th,D,G,dtype):
   return Kg_A
 
 def phi(A0,Th):
-    eoverh=(1.602176634*10**-19)/ (1.054571818*10**-34)
     d1=Th.d+1
     pA=np.ones((Th.nme,d1,d1),dtype=complex)
     for i in range(d1):
@@ -79,7 +81,7 @@ def phi(A0,Th):
                 x=lambda t : (1-t)*qi+t*qj
                 A0t= lambda t : np.dot(A0(x(t)[0],x(t)[1]),qj-qi)
                 Akij=integrate.quad(A0t,0,1)[0]
-                pA[k,i,j]=exp(complex(0,-eoverh*Akij))
+                pA[k,i,j]=exp(complex(0,Akij))
             pA[:,j,i]=np.conjugate(pA[:,i,j])
     return pA
 
@@ -114,9 +116,7 @@ class magPDE:
 
 def magAssemblyP1(Th,D,G=None,**kwargs):
   dtype=kwargs.get('dtype',complex)
-  m_e=kwargs.get('m_e',0.07*9*10**-31)
-  hbar=kwargs.get('hbar',1.054571818*10**-34)
-  Kg=KgP1_OptV3_A(Th,D,G,dtype=dtype,m_e=m_e,hbar=hbar)
+  Kg=KgP1_OptV3_A(Th,D,G,dtype=dtype)
   Ig,Jg=IgJgP1_OptV3(Th.d,Th.nme,Th.me)
   N=Th.nme*(Th.d+1)**2
   A=sparse.csc_matrix((np.reshape(Kg,N),(np.reshape(Ig,N),np.reshape(Jg,N))),shape=(Th.nq,Th.nq))
@@ -152,8 +152,8 @@ def solveMagPDE(pde,**kwargs):
   [AR,bR]=RobinBC(pde,AssemblyVersion,Num)
   b=b+bR#+bN
   [ID,IDc,gD]=DirichletBC(pde,Num)
-  A=M+AR;
-  #b[IDc]=b[IDc]-A[IDc,::]*gD;
+  A=M+AR
+  #b[IDc]=b[IDc]-A[IDc,::]*gD
   Tcpu[2]=time.time()-tstart
   x=np.zeros((ndof,),dtype=pde.dtype)
   tstart=time.time()
@@ -164,11 +164,11 @@ def solveMagPDE(pde,**kwargs):
   else: 
     x=X
   if (verbose):
-    bb=b[IDc]-A[IDc,::]*gD;
-    residu=np.linalg.norm(A[IDc][::,IDc]*X[IDc]-bb);
+    bb=b[IDc]-A[IDc,::]*gD
+    residu=np.linalg.norm(A[IDc][::,IDc]*X[IDc]-bb)
     Nh=np.linalg.norm(b[IDc])
     if (Nh>1e-9):
-      residu/=Nh;
+      residu/=Nh
     return x,SolveInfo(AssemblyVersion,SolveVersion,SolveOptions,Tcpu,flag,residu,ndof)
   else:
     return x
@@ -193,8 +193,8 @@ def getSol(**kwargs):
     if meshfile!=None:
         Th=mesh.readGMSH(meshfile)
     h=kwargs.get('h',0.1) # relative size (for a 1x1 square)
-    B=kwargs.get('B',1)
-    l=kwargs.get('l',10**-7)
+    B=kwargs.get('B',1.0)
+    l=kwargs.get('l',1.0)
     gauge=kwargs.get('gauge','LandauX')
     V=kwargs.get('V',0)
     magpde=init_magpde(h*l,B,l,gauge,V,Th)
@@ -208,12 +208,9 @@ def get_eigvv(**kwargs):
     h=kwargs.get('h',0.1) # relative size (for a 1x1 square)
     B=kwargs.get('B',1)
     N=kwargs.get('N',1)
-    l=kwargs.get('l',10**-7)
+    l=kwargs.get('l',1)
     gauge=kwargs.get('gauge','LandauX')
     V=kwargs.get('V',0)
-    hbar=kwargs.get('hbar',1.054571818*10**-34)
-    q_e=1.602176634*10**-19
-    m_e=kwargs.get('m_e',0.07*9*10**-31)
     magpde=init_magpde(h*l,B,l,gauge,V,Th)
     Num=1
     AssemblyVersion='OptV3'
@@ -237,14 +234,14 @@ def get_eigvv(**kwargs):
     #bN=NeumannBC(pde,AssemblyVersion,Num);
     [AR,bR]=RobinBC(magpde,AssemblyVersion,Num)
     [ID,IDc,gD]=DirichletBC(magpde,Num)
-    A=A_0+AR;
+    A=A_0+AR
     Tcpu[2]=time.time()-tstart
     x=np.zeros((ndof,N),dtype=magpde.dtype)
     w=np.zeros(N,dtype=complex)
     tstart=time.time()
     xx=np.repeat(gD[ID],N,axis=0)
     x[ID,:]=np.reshape(xx,(len(ID),-1))
-    E_0=hbar*q_e*B/(2*m_e)
+    E_0=B/2
     t=kwargs.get('target_energy',E_0)
     w,x[IDc,:]=eigsh((A[IDc])[::,IDc],M=(M[IDc])[::,IDc],k=N,sigma=t,which='LM')
     Tcpu[3]=time.time()-tstart

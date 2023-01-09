@@ -112,7 +112,7 @@ def pot_from_funct(funct,N):
             m[i,j]=funct(10*i/(N-1),10*j/(N-1))
     return m
 
-def interpolate_pot(value_grid,points,q):
+def interpolate_pot(value_grid,points,q,rescale=False):
   values=np.ravel(value_grid)
   V=griddata(points,values,q)
   return V
