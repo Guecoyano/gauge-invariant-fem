@@ -5,23 +5,28 @@ from fem_base.mesh import HyperCube
 import os
 import numpy as np
 
-res_path='/Volumes/Transcend/Thèse/mag_vec_fem/data' #data_path
+#res_path='/Volumes/Transcend/Thèse/mag_vec_fem/data' 
+res_path=data_path
 N_a=400
-x=0.05
+x=0.15
 sigma=2.2
 gauge='Sym'
-N_eig=100
-h=0.001
+N_eig=10
+h=0.01
 Th=HyperCube(2,int(1/h),l=1)
 
-B=1
-V_max=10
-for v in (7,8):
-    namepot='Na'+str(N_a)+'x'+str(int(100*x))+'sig'+str(int(10*sigma))+'v'+str(v)
-    namedata=os.path.realpath(os.path.join(res_path,'eigendata',namepot+'V'+str(V_max)+'B'+str(B)+gauge+'h'+str(int(1/h))+'Neig'+str(N_eig)+'.npz'))
-    dat_file=np.load(namedata,allow_pickle=True)
-    name_preeig=namepot+'V'+str(V_max)+'B'+str(B)+gauge+'h'+str(int(1/h))
-    saveplots_fromdata(Th,dat_file,name_preeig)
+NB=1
+NV=10
+B=NB**2
+V_max=NV**2
+for v in (2,):
+    for NB in (1,100):
+        for NV in (100,):
+            namepot='Na'+str(N_a)+'x'+str(int(100*x))+'sig'+str(int(10*sigma))+'v'+str(v)
+            namedata=os.path.realpath(os.path.join(res_path,'eigendata',namepot+'NV'+str(NV)+'NB'+str(NB)+gauge+'h'+str(int(1/h))+'Neig'+str(N_eig)+'.npz'))
+            dat_file=np.load(namedata,allow_pickle=True)
+            name_preeig=namepot+'NV'+str(NV)+'NB'+str(NB)+gauge+'h'+str(int(1/h))
+            saveplots_fromdata(Th,dat_file,name_preeig)
 
 """gauge='Sym'
 for pot_version in (0,):
