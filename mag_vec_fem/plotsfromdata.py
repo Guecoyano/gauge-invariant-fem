@@ -26,7 +26,7 @@ for v in (2,):
             namedata=os.path.realpath(os.path.join(res_path,'eigendata',namepot+'NV'+str(NV)+'NB'+str(NB)+gauge+'h'+str(int(1/h))+'Neig'+str(N_eig)+'.npz'))
             dat_file=np.load(namedata,allow_pickle=True)
             name_preeig=namepot+'NV'+str(NV)+'NB'+str(NB)+gauge+'h'+str(int(1/h))
-            saveplots_fromdata(Th,dat_file,name_preeig)
+            saveplots_fromdata(Th,dat_file,name_preeig, phase=True)
 
 """gauge='Sym'
 for pot_version in (0,):
