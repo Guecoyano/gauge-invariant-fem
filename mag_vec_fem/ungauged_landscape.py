@@ -27,7 +27,7 @@ print("1. Set square mesh")
 NV=10
 V1,Th=vth_data(h,namepot)
 print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq,Th.nme,Th.nbe));
-for NB in (10,15):
+for NV,NB in zip((50,100,200), (10,15)):
     E_s=NB**2/2
     V=NV**2*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
