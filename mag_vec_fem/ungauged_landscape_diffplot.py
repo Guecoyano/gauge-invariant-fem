@@ -29,7 +29,7 @@ print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq,Th.nme,Th.nbe));
 u=[]
 namedata=namepot+'NV'+str(NV)+'NB'+str(0)+'.npz'
 u+=[np.load(res_path+'/landscapes/'+namedata,allow_pickle=True)['u']]
-for NB in (0,5,10):
+for NB in (5,10):
     '''E_s=hbar*q_e*B/(2*m_e)
     V=V_max*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
@@ -42,13 +42,13 @@ for NB in (0,5,10):
     np.savez_compressed(os.path.realpath(os.path.join(res_path,'landscapes',namedata)),q=Th.q,u=x)'''
     
     namedata=namepot+'NV'+str(NV)+'NB'+str(NB)+'.npz'
-    u=np.load(res_path+'/landscapes/'+namedata,allow_pickle=True)['u']
+    u+=[np.load(res_path+'/landscapes/'+namedata,allow_pickle=True)['u']]
 
     print('5.   Plot')
 
-    E_0=NB**2/2
-    wmax=6000+E_0
-    plt.figure(NB)
+    E_0=NB/2
+    '''wmax=6000+E_0
+    plt.figure(2)
     plt.clf()
     PlotBounds(Th,legend=False,color='k')
     plt.axis('off')
@@ -57,24 +57,24 @@ for NB in (0,5,10):
     t='deltaw_'+namepot+'NB'+str(NB)+'NV'+str(NV)+'h'+str(int(1/h))
     plt.savefig(os.path.realpath(os.path.join(res_path,t)))
     plt.clf()
-    plt.close()
+    plt.close()'''
 
-    plt.figure(NB+1)
+    plt.figure(NB)
     plt.clf()
     PlotBounds(Th,legend=False,color='k')
     plt.axis('off')
     #PlotVal(Th,u.real)
-    PlotVal(Th,np.maximum(u.real,1/(0.5*NV**2)))
-    #PlotVal(Th,np.maximum((u[NB//5]/(u[0]+10.0**(-5))).real,0.94))
-    plt.title(r'Shifted landscape $N_B=%d$'%(NB))
-    t='u_'+namepot+'NB'+str(NB)+'NV'+str(NV)+'h'+str(int(1/h))
-    plt.savefig(os.path.realpath(os.path.join(res_path,t)))
-    plt.clf()
-    plt.close()
+    #PlotVal(Th,np.maximum(u.real,1/(0.5*NV**2)))
+    PlotVal(Th,np.maximum((u[NB//5]/(u[0]+10.0**(-5))).real,0.94))
+    plt.title(r'u/u0 $N_B=%d$'%(NB))
+    t='deltau_'+namepot+'NB'+str(NB)+'NV'+str(NV)+'h'+str(int(1/h))
+    #plt.savefig(os.path.realpath(os.path.join(res_path,t)))
+    #plt.clf()
+    #plt.close(
     
     
 
-''' 
+    
 plt.figure(NB+1)
 plt.clf()
 PlotBounds(Th,legend=False,color='k')
@@ -82,7 +82,7 @@ plt.axis('off')
 PlotVal(Th,(u[2]-u[1]).real)
 plt.title(r'u10-u5')
 t='deltau_'+namepot+'NB'+str(NB)+'NV'+str(NV)+'h'+str(int(1/h))
-#plt.clf()'''
+#plt.clf()
 
 '''plt.figure(3)
 plt.clf()

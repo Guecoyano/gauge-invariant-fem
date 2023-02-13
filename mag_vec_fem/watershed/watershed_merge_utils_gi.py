@@ -1,90 +1,20 @@
 import numpy as np
 import sys
 from matplotlib.pyplot import *
-from watershed.watershed_utils import *
+from watershed.watershed_utils_gi import *
 import matplotlib.pyplot as plt
-import fenics
-import dolfin
 import pickle
 
 
-# 1) Convert W into a text file
-# The first bit of the code takes the effective potential and converts it into a txt file.
 
-
-def read_W_and_store_as_txt():
-    #Define periodic boundary conditions.
-    class PeriodicBoundary(SubDomain):
-        #Left edge and bottom edge are target domain
-        def inside(self, x, on_boundary):
-            return ((near(x[0], 0) or near(x[1], 0.)) and not (near(x[0], 1.) or near(x[1], 1.))) and on_boundary
-
-        def map(self, x, y):
-            #Map top right corner to origin.
-            if near(x[0], 1.) and near(x[1], 1.):
-                y[0] = x[0] - 1.
-                y[1] = x[1] - 1.
-            #Map right edge of domain to left edge.
-            elif near(x[0], 1.):
-                y[0] = x[0] - 1.
-                y[1] = x[1]
-            #Map top edge of domain to bottom edge.
-            elif near(x[1], 1.):
-                y[0] = x[0]
-                y[1] = x[1] - 1.
-            #Need else statement for some unknown reason.
-            else:
-                y[0] = -1.
-                y[1] = -1.
-
-
-    N = 800 #Potential is defined on [0, 1] x [0, 1] grid of N x N squares
-    deg_fe = 1 #Degree of finite elements used to solve eigenvalue problem
-
-    mesh = UnitSquareMesh(N,N)
-
-    pbc = PeriodicBoundary()
-    Vh = FunctionSpace(mesh, 'CG', deg_fe, constrained_domain=pbc) #Function space for FE solution
-
-
-
-    W = Function(Vh)
-    with XDMFFile(MPI.comm_world,"eff_"+str(N)+"_"+str(deg_fe)+".xdmf") as fFile:
-        fFile.read_checkpoint(W, "W", 0)
-
-
-    u = Function(Vh)
-    with XDMFFile(MPI.comm_world,"u_"+str(N)+"_"+str(deg_fe)+".xdmf") as fFile:
-        fFile.read_checkpoint(u, "u", 0)
-
-
-    #Convert the W(x,y) to an array W_np[x*mesh_size][y*mesh_size]
-
-    mesh_size = N
-    W_np_fixed = np.zeros([mesh_size,mesh_size])
-    u_np_fixed = np.zeros([mesh_size,mesh_size])
-
-    for i in range(mesh_size):
-
-        for j in range(mesh_size):
-            W_np_fixed[i][j] = (W(1.0*i/mesh_size,1.0*j/mesh_size)/(const*q))
-            u_np_fixed[i][j] = u(1.0*i/mesh_size,1.0*j/mesh_size)
-
-    np.savetxt('results/W.txt',W_np_fixed)
-    np.savetxt('results/u.txt',u_np_fixed)
-
-
-
-def find_minima(W_np_fixed):
-    # filename = 'results/W.txt'
-    # W_np_fixed = np.loadtxt(filename) # function on [0, 1] x [0, 1]
-    n1, n2 = W_np_fixed.shape
+def find_minima(Wgrid):
+    n1, n2 = Wgrid.shape
 
     # corresponding x and y coordinates
     x = np.linspace(0., 1., n1, endpoint=False)
     y = np.linspace(0., 1., n2, endpoint=False)
     # label the local maxima
-    M = label_local_minima(W_np_fixed, mode='wrap')
+    M = label_local_minima(Wgrid, mode='wrap')
     no_of_minima = int(np.max(M))
     print("Number of minima", no_of_minima)
 
@@ -98,7 +28,7 @@ def find_minima(W_np_fixed):
         for j in range(n2):
             if M[i,j] != 0:
                 # print(i,j,M[i,j])
-                W_ag[int(M[i][j])-1] = W_np_fixed[i][j]
+                W_ag[int(M[i][j])-1] = Wgrid[i][j]
                 x_ag[int(M[i][j])-1] = i/(n1)
                 y_ag[int(M[i][j])-1] = j/(n2)
                 x_min[int(M[i][j])-1] = i
@@ -119,9 +49,9 @@ def find_minima(W_np_fixed):
 
 #
 
-def find_borders(W_np_fixed, W):
+def find_borders(Wgrid, W):
 
-    W_np_fixed[W == 0.] = np.nan
+    Wgrid[W == 0.] = np.nan
     n1, n2 = W.shape
 
     #
@@ -129,7 +59,7 @@ def find_borders(W_np_fixed, W):
     border_y = []
     for i in range(n1):
         for j in range(n2):
-            if W_np_fixed[i,j] != W_np_fixed[i,j]:
+            if Wgrid[i,j] != Wgrid[i,j]:
                 border_x.append(i)
                 border_y.append(j)
 
@@ -139,9 +69,9 @@ def find_borders(W_np_fixed, W):
     plt.show()
 
 
-def store_watershed_transform(M, W_np_fixed):
+def store_watershed_transform(M, Wgrid):
 
-    W = watershed(W_np_fixed, M, mode='wrap')
+    W = watershed(Wgrid, M, mode='irr')
     np.savetxt('watershed.txt', W)
     print("Storing the watershed transform (as defined in watershed_utils.py) in watershed.txt")
 
@@ -206,7 +136,7 @@ def find_neighbors(threshold = 0.5):
 
     # print(new_data)
 
-def construct_network(W_np_fixed):
+def construct_network(Wgrid):
     print("Evaluating the values of the effective potential at the borders of the sub-regions. This may take a while.")
     W = np.loadtxt('watershed.txt')
     n1, n2 = W.shape
@@ -230,8 +160,8 @@ def construct_network(W_np_fixed):
 
                 common_points = points_in_common(bd_i, bd_j)
 
-                min_ij = np.min(W_np_fixed[tuple(np.array(common_points).T)])
-                avg_ij = np.mean(W_np_fixed[tuple(np.array(common_points).T)])
+                min_ij = np.min(Wgrid[tuple(np.array(common_points).T)])
+                avg_ij = np.mean(Wgrid[tuple(np.array(common_points).T)])
                 min_boundary[i][j] = min_ij
                 min_boundary[j][i] = min_ij
                 avg_boundary[i][j] = avg_ij
@@ -379,7 +309,7 @@ def merge(i,j, x_min, y_min, W, bound_val, neighbors, plot_option = False):
         plt.ylim(0,n2)
         plt.show()
 
-def merge_algorithm(W_np_fixed):
+def merge_algorithm(Wgrid):
     print("Merging different sub-regions and eliminating spurious minima. This may take a while.")
     independent_list = []
     sub_region_final = []
@@ -446,7 +376,7 @@ def merge_algorithm(W_np_fixed):
 #                             fig1, ax1 = plt.subplots(figsize=(10,10))
 #                             plt.imshow(W)
 #                             plt.show()
-#                             find_borders(W_np_fixed, W)
+#                             find_borders(Wgrid, W)
 
                             merge_flag = 1
                             break

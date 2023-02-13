@@ -1,16 +1,19 @@
 # coding=utf-8
-from fem_base.exploit_fun import datafile, read_eigplot, data_path
+from fem_base.exploit_fun import datafile,read_eigplot, data_path
 import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
+import os
+import numpy as np
 
 res_path=data_path
-lnm=200
+namepot='Na400x15sig22v0'
 V_max=50
-h=0.01
-pot_version=7
+h=0.001
+pot_version=0
 gauge='Sym'
 N_eig=100
 n=1
+print('Building mesh')
 Th=HyperCube(2,int(1/h),l=1)
 
 '''for b in (15,):
@@ -21,10 +24,11 @@ Th=HyperCube(2,int(1/h),l=1)
             save_eigplot(n,lnm,b,Th,dat_file,Num,'modulus',name_preeig,res_path)
             n+=1'''
 plt.close('all')
-for b in (10,):
-    for Num in (1,2,3,4,50,53,54,55,56,70,71,72,73,74,75,80):
-        for V_max in (100,):
-            dat_file=datafile(lnm,b,V_max,h,pot_version,gauge,N_eig)
-            read_eigplot(n,lnm,b,Th,dat_file,Num,'modulus')
-            n+=1
+for NV,NB in zip((100,100,100),(5,10,15)):
+    for Num in (1,2,3,4):
+        print('Charging namepot, NV='+str(NV)+' NB='+str(NB))
+        dat_file=datafile(namepot,NV,NB,gauge,h,N_eig)
+        print('Reading')
+        read_eigplot(n,namepot,NV,NB,Th,dat_file,Num,'modulus')
+        n+=1
 plt.show()

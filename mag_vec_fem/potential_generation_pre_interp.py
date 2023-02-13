@@ -14,7 +14,7 @@ res_path=data_path
         np.save(name,pot)
     np.save(res_path+'/Vq/Vql'+str(l),q_pot)
 '''
-v=5
+v=10
 for f in (lambda x,y:2*exp(-0.1*((x-8)**2+(y-8)**2))-3*exp(-0.3*((x-5.5)**2+(y-1)**2))+4/((x-2)**2+(y-5)**2+1),
 lambda x,y:(1-1/((x-5)**2/2+(y-4)**2/4+1)),
 lambda x,y:2*exp(-0.1*((x-8)**2+(y-8)**2))+3*exp(-0.3*((x-5.5)**2+(y-1)**2))+4/((x-2)**2+(y-5)**2+1),
@@ -24,6 +24,8 @@ lambda x,y:(1/((x-5)**2/2+(y-4)**2/4+1))):
     pot=pot_from_funct(f,N)
     name=os.path.realpath(os.path.join(data_path,'pre_interp_pot','v'+str(v)+'.npy'))
     np.save(name,pot)
+
+
 '''
 l=1
 N_a=400
