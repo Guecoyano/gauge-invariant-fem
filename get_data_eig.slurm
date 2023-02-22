@@ -18,9 +18,6 @@ echo "getting eigen values and functions and store in files"
 cat mag_vec_fem/get_data_eig.py
 python mag_vec_fem/get_data_eig.py
 
-echo .
-echo "getting eigenplots from obtained data"
-python mag_vec_fem/plotsfromdata.py
 
 echo "-=-"
 echo "Job ended on `date`"
