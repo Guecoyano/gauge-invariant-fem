@@ -13,7 +13,9 @@ def GetFreeFEMcmd():
         Initcmd = "export LD_LIBRARY_PATH=/usr/local/freefem/freefem++-3.22/lib/ff++/3.22/lib; "
     if Hostname == "hercule":
         FreeFEMcmd = "/usr/local/FreeFEM++/3.31/bin/FreeFem++ "
-        Initcmd = "export LD_LIBRARY_PATH=/usr/local/FreeFEM++/3.31/lib/ff++/3.32-1/lib; "
+        Initcmd = (
+            "export LD_LIBRARY_PATH=/usr/local/FreeFEM++/3.31/lib/ff++/3.32-1/lib; "
+        )
     if Hostname == "gpucreos1":
         FreeFEMcmd = "/usr/local/FREEFEM/freefem++-3.31-3/bin/FreeFem++ "
         Initcmd = "export LD_LIBRARY_PATH=/usr/local/FREEFEM/freefem++-3.31-3/lib/ff++/3.31-3/lib; "
@@ -87,15 +89,7 @@ def RunFreeFEMV3(FFScriptFile, N):
     FreeFEMcmd, Initcmd = GetFreeFEMcmd()
     # DirWork=os.path.dirname(Name)
     # print(Initcmd+ "cd "+DirWork+";echo "+str(N)+" | " + FreeFEMcmd +Name+".edp")
-    command = (
-        Initcmd
-        + " echo "
-        + str(N)
-        + " | "
-        + FreeFEMcmd
-        + " -cd "
-        + FFScriptFile
-    )
+    command = Initcmd + " echo " + str(N) + " | " + FreeFEMcmd + " -cd " + FFScriptFile
 
     proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     (out, err) = proc.communicate()

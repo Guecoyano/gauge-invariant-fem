@@ -78,7 +78,7 @@ def label_local_minima(I, mode=None):
     This may not be what is wanted.
 
     The parameter mode can be set to 'wrap' to handle periodic functions.  In
-    that case we interpret I[i, j] = I[i + k n1, j + l n2] 
+    that case we interpret I[i, j] = I[i + k n1, j + l n2]
     where (n1, n2) = I.shape and k, l are arbitrary integers.
     """
 
@@ -115,10 +115,7 @@ def label_local_minima(I, mode=None):
         for i in range(n1):
             for j in range(n2):
                 if I[i, j] < np.min(
-                    [
-                        I[ii, jj]
-                        for (ii, jj) in neighbors(i, j, n1, n2, mode=mode)
-                    ]
+                    [I[ii, jj] for (ii, jj) in neighbors(i, j, n1, n2, mode=mode)]
                 ):
                     J[i, j] = 1.0
         mini, minj = np.where(J)
@@ -185,9 +182,7 @@ def boundary(I, i, j, mode=None):
                 if I[index(i + x, Li), index(j + y, Lj)] == 0:
                     l.append([index(i + x, Li), index(j + y, Lj)])
                     l_used.append(index(i + x, Li) + Li * index(j + y, Lj))
-                elif (
-                    l_used.count(index(i + x, Li) + Li * index(j + y, Lj)) == 0
-                ):
+                elif l_used.count(index(i + x, Li) + Li * index(j + y, Lj)) == 0:
                     l_points.append([index(i + x, Li), index(j + y, Lj)])
                     l_used.append(index(i + x, Li) + Li * index(j + y, Lj))
 
@@ -200,21 +195,13 @@ def boundary(I, i, j, mode=None):
                     for y in range(-1, 2):
                         if I[index(ii + x, Li), index(jj + y, Lj)] == 0:
                             l.append([index(ii + x, Li), index(jj + y, Lj)])
-                            l_used.append(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
+                            l_used.append(index(ii + x, Li) + Li * index(jj + y, Lj))
                         elif (
-                            l_used.count(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
+                            l_used.count(index(ii + x, Li) + Li * index(jj + y, Lj))
                             == 0
                         ):
-                            l_new_points.append(
-                                [index(ii + x, Li), index(jj + y, Lj)]
-                            )
-                            l_used.append(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
+                            l_new_points.append([index(ii + x, Li), index(jj + y, Lj)])
+                            l_used.append(index(ii + x, Li) + Li * index(jj + y, Lj))
 
             l_points = l_new_points
 
@@ -298,9 +285,7 @@ def region(I, i, j, mode=None):
                     l.append([index(i + x, Li), index(j + y, Lj)])
                     l_regions.append([index(i + x, Li), index(j + y, Lj)])
                     l_used.append(index(i + x, Li) + Li * index(j + y, Lj))
-                elif (
-                    l_used.count(index(i + x, Li) + Li * index(j + y, Lj)) == 0
-                ):
+                elif l_used.count(index(i + x, Li) + Li * index(j + y, Lj)) == 0:
                     l_points.append([index(i + x, Li), index(j + y, Lj)])
                     l_used.append(index(i + x, Li) + Li * index(j + y, Lj))
                     l_regions.append([index(i + x, Li), index(j + y, Lj)])
@@ -314,27 +299,15 @@ def region(I, i, j, mode=None):
                     for y in range(-1, 2):
                         if I[index(ii + x, Li), index(jj + y, Lj)] == 0:
                             l.append([index(ii + x, Li), index(jj + y, Lj)])
-                            l_used.append(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
-                            l_regions.append(
-                                [index(ii + x, Li), index(jj + y, Lj)]
-                            )
+                            l_used.append(index(ii + x, Li) + Li * index(jj + y, Lj))
+                            l_regions.append([index(ii + x, Li), index(jj + y, Lj)])
                         elif (
-                            l_used.count(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
+                            l_used.count(index(ii + x, Li) + Li * index(jj + y, Lj))
                             == 0
                         ):
-                            l_new_points.append(
-                                [index(ii + x, Li), index(jj + y, Lj)]
-                            )
-                            l_used.append(
-                                index(ii + x, Li) + Li * index(jj + y, Lj)
-                            )
-                            l_regions.append(
-                                [index(ii + x, Li), index(jj + y, Lj)]
-                            )
+                            l_new_points.append([index(ii + x, Li), index(jj + y, Lj)])
+                            l_used.append(index(ii + x, Li) + Li * index(jj + y, Lj))
+                            l_regions.append([index(ii + x, Li), index(jj + y, Lj)])
 
             l_points = l_new_points
 
@@ -421,16 +394,14 @@ def neighbors(i, j, n1, n2, mode=None):
             ]
         )
     return l[
-        np.all(
-            (l[:, 0] > -1, l[:, 0] < n1, l[:, 1] > -1, l[:, 1] < n2), axis=0
-        ),
+        np.all((l[:, 0] > -1, l[:, 0] < n1, l[:, 1] > -1, l[:, 1] < n2), axis=0),
         :,
     ]
 
 
 def watershed(I, M, mode=None):
     """
-    This function defines a watershed transform based on markers and flooding. 
+    This function defines a watershed transform based on markers and flooding.
     This should duplicate the Matlab imaging toolbox watershed as long as the
     markers are the local minima.
     It is also a translation of the C++ code provided at

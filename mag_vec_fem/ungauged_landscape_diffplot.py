@@ -43,9 +43,7 @@ for NB in (5, 10):
     """
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u += [
-        np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]
-    ]
+    u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
 
     print("5.   Plot")
 
@@ -70,16 +68,7 @@ for NB in (5, 10):
     # PlotVal(Th,np.maximum(u.real,1/(0.5*NV**2)))
     PlotVal(Th, np.maximum((u[NB // 5] / (u[0] + 10.0 ** (-5))).real, 0.94))
     plt.title(r"u/u0 $N_B=%d$" % (NB))
-    t = (
-        "deltau_"
-        + namepot
-        + "NB"
-        + str(NB)
-        + "NV"
-        + str(NV)
-        + "h"
-        + str(int(1 / h))
-    )
+    t = "deltau_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
     # plt.savefig(os.path.realpath(os.path.join(res_path,t)))
     # plt.clf()
     # plt.close(
@@ -91,16 +80,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, (u[2] - u[1]).real)
 plt.title(r"u10-u5")
-t = (
-    "deltau_"
-    + namepot
-    + "NB"
-    + str(NB)
-    + "NV"
-    + str(NV)
-    + "h"
-    + str(int(1 / h))
-)
+t = "deltau_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
 # plt.clf()
 
 """plt.figure(3)

@@ -56,8 +56,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x[:, 0]))
 plt.title(
-    r"2D Magnetic Schrödinger : first eigenfunction (modulus), $E_1=%d$)"
-    % (w[0])
+    r"2D Magnetic Schrödinger : first eigenfunction (modulus), $E_1=%d$)" % (w[0])
 )
 
 
@@ -67,8 +66,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x[:, 2]))
 plt.title(
-    r"2D Magnetic Schrödinger : third eigenfunction (modulus), $E_3=%d$)"
-    % (w[2])
+    r"2D Magnetic Schrödinger : third eigenfunction (modulus), $E_3=%d$)" % (w[2])
 )
 
 
@@ -78,8 +76,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x[:, 4]))
 plt.title(
-    r"2D Magnetic Schrödinger : fifth eigenfunction (modulus), $E_5=%d$)"
-    % (w[4])
+    r"2D Magnetic Schrödinger : fifth eigenfunction (modulus), $E_5=%d$)" % (w[4])
 )
 
 
@@ -89,8 +86,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x2[:, 0]))
 plt.title(
-    r"2D Magnetic Schrödinger : first eigenfunction (modulus), $E_1=%d$)"
-    % (w2[0])
+    r"2D Magnetic Schrödinger : first eigenfunction (modulus), $E_1=%d$)" % (w2[0])
 )
 
 
@@ -100,8 +96,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x2[:, 2]))
 plt.title(
-    r"2D Magnetic Schrödinger : third eigenfunction (modulus), $E_3=%d$)"
-    % (w2[2])
+    r"2D Magnetic Schrödinger : third eigenfunction (modulus), $E_3=%d$)" % (w2[2])
 )
 
 
@@ -111,8 +106,7 @@ PlotBounds(Th, legend=False, color="k")
 plt.axis("off")
 PlotVal(Th, np.abs(x2[:, 4]))
 plt.title(
-    r"2D Magnetic Schrödinger : fifth eigenfunction (modulus), $E_5=%d$)"
-    % (w2[4])
+    r"2D Magnetic Schrödinger : fifth eigenfunction (modulus), $E_5=%d$)" % (w2[4])
 )
 plt.show()
 plt.close()

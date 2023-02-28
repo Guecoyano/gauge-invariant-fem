@@ -17,7 +17,7 @@ res_path = data_path
 
 plt.close("all")
 
-h = 0.005
+h = 0.001
 B = 10
 namepot = "Na400x15sig22v0"
 
@@ -27,9 +27,9 @@ NV = 100
 V1, Th = vth_data(h, namepot)
 print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
 u = []
-namedata = namepot + "NV" + str(NV) + "NB" + str(0) + ".npz"
-u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
-for NB in (0, 5, 10):
+# namedata = namepot + "NV" + str(NV) + "NB" + str(100) + ".npz"
+# u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
+for NB in (15,):
     """E_s=hbar*q_e*B/(2*m_e)
     V=V_max*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
@@ -44,49 +44,32 @@ for NB in (0, 5, 10):
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
     u = np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]
+    print("size of u", np.shape(u))
 
     print("5.   Plot")
 
     E_0 = NB**2 / 2
-    wmax = 6000 + E_0
-    plt.figure(NB)
+    wmax = (0.7*NV**4 + E_0**2) ** (1 / 2)
+
+    '''plt.figure(NB)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    PlotVal(Th, np.add(np.minimum(np.reciprocal(np.real(u)), wmax), -E_0))
+    PlotVal(Th, np.add(np.reciprocal(np.maximum(np.real(u), 1 / wmax)), -E_0))
     plt.title(r"Effective potential with shift $N_B=%d$ minus $E_0$" % (NB))
-    t = (
-        "deltaw_"
-        + namepot
-        + "NB"
-        + str(NB)
-        + "NV"
-        + str(NV)
-        + "h"
-        + str(int(1 / h))
-    )
-    plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    t = "deltaw_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
+    # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    plt.show()
     plt.clf()
-    plt.close()
+    plt.close()'''
 
     plt.figure(NB + 1)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    # PlotVal(Th,u.real)
-    PlotVal(Th, np.maximum(u.real, 1 / (0.5 * NV**2)))
-    # PlotVal(Th,np.maximum((u[NB//5]/(u[0]+10.0**(-5))).real,0.94))
+    PlotVal(Th, np.maximum(u.real, 1 / (wmax)))
     plt.title(r"Shifted landscape $N_B=%d$" % (NB))
-    t = (
-        "u_"
-        + namepot
-        + "NB"
-        + str(NB)
-        + "NV"
-        + str(NV)
-        + "h"
-        + str(int(1 / h))
-    )
+    t = "u_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
     plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.clf()
     plt.close()
@@ -110,5 +93,3 @@ PlotVal(Th,np.abs(x))
 plt.title(r'u0 l=$lnm=%d$'%(lnm))
 plt.show()
 plt.close()"""
-plt.show()
-plt.close()

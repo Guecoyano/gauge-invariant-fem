@@ -27,8 +27,7 @@ def vtkWriteMesh(Th, fid):
         fid.write("CELLS %d %d\n" % (Th.nme, 5 * Th.nme))
         for k in range(Th.nme):
             fid.write(
-                "4 %d %d %d %d\n"
-                % (Th.me[k, 0], Th.me[k, 1], Th.me[k, 2], Th.me[k, 3])
+                "4 %d %d %d %d\n" % (Th.me[k, 0], Th.me[k, 1], Th.me[k, 2], Th.me[k, 3])
             )
         fid.write("CELL_TYPES %d\n" % Th.nme)
         for k in range(Th.nme):
@@ -42,9 +41,7 @@ def vtkWriteMesh(Th, fid):
                 fid.write("%g %g %g\n" % (Th.q[i, 0], Th.q[i, 1], Th.q[i, 2]))
         fid.write("CELLS %d %d\n" % (Th.nme, 4 * Th.nme))
         for k in range(Th.nme):
-            fid.write(
-                "3 %d %d %d \n" % (Th.me[k, 0], Th.me[k, 1], Th.me[k, 2])
-            )
+            fid.write("3 %d %d %d \n" % (Th.me[k, 0], Th.me[k, 1], Th.me[k, 2]))
         fid.write("CELL_TYPES %d\n" % Th.nme)
         for k in range(Th.nme):
             fid.write("5\n")  # 5 for triangles

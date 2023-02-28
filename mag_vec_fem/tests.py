@@ -37,9 +37,24 @@ def connectivity(Th):
     return conn
 
 
-Th = HyperCube(2, 3, l=1)
+def min_indices_from_loc_min(I):
+    """returns ordered list of indices of local minima"""
+    m = []
+    for n in range(len(I)):
+        if I[n] != 0:
+            m.append((I[n], n))
+    mm = sorted(m)
+    mmm = [i[1] for i in mm]
+    return mmm
+
+
+I = [0, 0, 2, 0, 3, 4, 0, 0, 0, 1, 6, 8, 7]
+print(min_indices_from_loc_min(I))
+
+"""Th = HyperCube(2, 3, l=1)
 print(Th.q.shape)
 print(Th.nme)
 print(Th.me)
 conn = connectivity(Th)
 print(conn)
+"""

@@ -139,9 +139,7 @@ def StiffElasHoperators(d, lam, mu):
             gam = lambda x1, x2: lam + 2 * mu(x1, x2)
         if d == 3:
             gam = lambda x1, x2, x3: lam + 2 * mu(x1, x2, x3)
-    if isinstance(mu, type(lambda: None)) and isinstance(
-        lam, type(lambda: None)
-    ):
+    if isinstance(mu, type(lambda: None)) and isinstance(lam, type(lambda: None)):
         if d == 2:
             gam = lambda x1, x2: lam(x1, x2) + 2 * mu(x1, x2)
         if d == 3:

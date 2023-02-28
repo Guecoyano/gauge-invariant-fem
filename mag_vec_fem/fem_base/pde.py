@@ -11,8 +11,7 @@ import time
 class PDE:
     def __init__(self, Op, Th, **kwargs):
         assert (
-            isinstance(Op, operators.Loperator)
-            or isinstance(Op, operators.Hoperator)
+            isinstance(Op, operators.Loperator) or isinstance(Op, operators.Hoperator)
         ) and isinstance(Th, mesh.Mesh)
         assert Op.d == Th.d
         self.dtype = kwargs.get("dtype", float)
@@ -95,9 +94,7 @@ def setBC_PDE(pde, label, comps, ctype, gfuncs, arfuncs=None):
     if ctype == "Robin":
         for i in range(nc):
             for j in l:
-                pde.bclR[comps[i]][j] = BCrobin(
-                    getFunc(gfuncs, i), getFunc(arfuncs, i)
-                )
+                pde.bclR[comps[i]][j] = BCrobin(getFunc(gfuncs, i), getFunc(arfuncs, i))
     return pde
 
 
@@ -137,9 +134,7 @@ def RobinBC(pde, AssemblyVersion, Num):
                         MassBC = FEM.AssemblyP1(
                             pde.Bh[l], LMass, version=AssemblyVersion
                         )
-                    g = FEMtools.setFdata(
-                        pde.bclR[i][l].g, pde.Bh[l], dtype=pde.dtype
-                    )
+                    g = FEMtools.setFdata(pde.bclR[i][l].g, pde.Bh[l], dtype=pde.dtype)
                     FR[Ind] += MassBC * g
                 if pde.bclR[i][l].ar != None:
                     Kg = FEMOptV3.KgP1_OptV3_guv(
@@ -150,15 +145,9 @@ def RobinBC(pde, AssemblyVersion, Num):
                     )
                     Ig = Ind[Ig]
                     Jg = Ind[Jg]
-                    II = np.concatenate(
-                        (II, np.reshape(Ig, (np.prod(Ig.shape),)))
-                    )
-                    JJ = np.concatenate(
-                        (JJ, np.reshape(Jg, (np.prod(Jg.shape),)))
-                    )
-                    KK = np.concatenate(
-                        (KK, np.reshape(Kg, (np.prod(Kg.shape),)))
-                    )
+                    II = np.concatenate((II, np.reshape(Ig, (np.prod(Ig.shape),))))
+                    JJ = np.concatenate((JJ, np.reshape(Jg, (np.prod(Jg.shape),))))
+                    KK = np.concatenate((KK, np.reshape(Kg, (np.prod(Kg.shape),))))
     MR = sparse.csc_matrix((KK, (II, JJ)), shape=(m * nq, m * nq))
     return MR, FR
 
@@ -174,9 +163,7 @@ def DirichletBC(pde, Num):
         for i in range(m):
             if pde.bclD[i][l] != None:
                 Ind = VFNum(pde.Bh[l].toGlobal, i)
-                g[Ind] = FEMtools.setFdata(
-                    pde.bclD[i][l].g, pde.Bh[l], dtype=pde.dtype
-                )
+                g[Ind] = FEMtools.setFdata(pde.bclD[i][l].g, pde.Bh[l], dtype=pde.dtype)
                 IndD = np.concatenate((IndD, Ind))
     ID = np.unique(IndD)
     IDc = np.setdiff1d(np.arange(ndof), ID)

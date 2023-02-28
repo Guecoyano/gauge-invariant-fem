@@ -64,9 +64,7 @@ def PrintResultsSphinx(versions, LN, Lnq, Lndof, T):
     Sep1 = "+{:-^8}".format("") * 3 + "+{:-^14}".format("") * nV + "+"
     Sep2 = "+{:=^8}".format("") * 3 + "+{:=^14}".format("") * nV + "+"
     Sep3 = "|{:^8}".format("") * 3 + "+{:-^14}".format("") * nV + "+"
-    Tit = (
-        "|{:^8}".format("N") + "|{:^8}".format("nq") + "|{:^8}".format("ndof")
-    )
+    Tit = "|{:^8}".format("N") + "|{:^8}".format("nq") + "|{:^8}".format("ndof")
     for i in range(0, nV):
         Tit += "|{:^14}".format(versions[i])
     Tit += "|"
@@ -192,10 +190,7 @@ def printReport(FileName, assembly, Release):
     fp.write("\\begin{document}\n")
     fp.write("\\maketitle\n")
     fp.write(
-        format(
-            "\\inputtabular{%s}\n{cputimes and speedup}\n\n" % basename
-            + ".tex"
-        )
+        format("\\inputtabular{%s}\n{cputimes and speedup}\n\n" % basename + ".tex")
     )
     fp.write(format("\\imageps{%s}{0.5}\n" % basename + ".eps"))
     fp.write("\\end{document}\n")

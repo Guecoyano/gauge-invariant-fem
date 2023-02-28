@@ -11,16 +11,16 @@ N_a = 400
 x = 0.15
 sigma = 2.2
 gauge = "Sym"
-N_eig = 10
-h = 0.01
+N_eig = 100
+h = 0.001
 Th = HyperCube(2, int(1 / h), l=1)
 
 NB = 1
 NV = 10
 B = NB**2
 V_max = NV**2
-for v in (2,):
-    for NB in (1, 100):
+for v in (0,):
+    for NB in (1,5,10,15,20,30):
         for NV in (100,):
             namepot = (
                 "Na"

@@ -57,9 +57,7 @@ def read_W_and_store_as_txt():
         fFile.read_checkpoint(W, "W", 0)
 
     u = Function(Vh)
-    with XDMFFile(
-        MPI.comm_world, "u_" + str(N) + "_" + str(deg_fe) + ".xdmf"
-    ) as fFile:
+    with XDMFFile(MPI.comm_world, "u_" + str(N) + "_" + str(deg_fe) + ".xdmf") as fFile:
         fFile.read_checkpoint(u, "u", 0)
 
     # Convert the W(x,y) to an array W_np[x*mesh_size][y*mesh_size]
@@ -70,9 +68,7 @@ def read_W_and_store_as_txt():
 
     for i in range(mesh_size):
         for j in range(mesh_size):
-            W_np_fixed[i][j] = W(1.0 * i / mesh_size, 1.0 * j / mesh_size) / (
-                const * q
-            )
+            W_np_fixed[i][j] = W(1.0 * i / mesh_size, 1.0 * j / mesh_size) / (const * q)
             u_np_fixed[i][j] = u(1.0 * i / mesh_size, 1.0 * j / mesh_size)
 
     np.savetxt("results/W.txt", W_np_fixed)
@@ -154,9 +150,7 @@ def store_watershed_transform(M, W_np_fixed):
 
 # np.savetxt("W_ag.txt", W_ag)
 def find_neighbors(threshold=0.5):
-    print(
-        "Calculating the network of neighbouring subregions. This may take a while"
-    )
+    print("Calculating the network of neighbouring subregions. This may take a while")
     W = np.loadtxt("watershed.txt")
     n1, n2 = W.shape
 
@@ -371,9 +365,7 @@ def merge(i, j, x_min, y_min, W, bound_val, neighbors, plot_option=False):
         fig1, ax1 = plt.subplots(figsize=(10, 10))
 
         for k in range(len(region_points)):
-            plt.plot(
-                region_points[k][0], region_points[k][1], ".", color="tab:blue"
-            )
+            plt.plot(region_points[k][0], region_points[k][1], ".", color="tab:blue")
 
         for k in range(len(bd_i)):
             plt.plot(bd_i[k][0], bd_i[k][1], ".", color="tab:orange")
@@ -427,9 +419,7 @@ def merge_algorithm(W_np_fixed):
 
         else:
             # print("working listindex", working_list[index])
-            if is_independent(
-                working_list[index], W_ag, min_boundary, neighbors
-            ):
+            if is_independent(working_list[index], W_ag, min_boundary, neighbors):
                 # print("is independent true", working_list[index])
                 independent_list.append(working_list[index])
                 working_list.pop(index)

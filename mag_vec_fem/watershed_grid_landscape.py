@@ -12,9 +12,7 @@ from scipy.interpolate import griddata
 
 x = np.linspace(-0.5, 0.5, 2000)
 grid = np.meshgrid(x, x)
-nameu = os.path.realpath(
-    os.path.join(data_path, "landscapes", "Na400NV10NB10.npz")
-)
+nameu = os.path.realpath(os.path.join(data_path, "landscapes", "Na400NV10NB10.npz"))
 umesh = np.load(nameu, "u")
 points = np.load(nameu, "q")
 ugrid = griddata(points, umesh, grid)

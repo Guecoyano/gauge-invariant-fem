@@ -37,9 +37,7 @@ def PlotIsolines(Th, u, **kwargs):
             )  # , cmap=plt.cm.rainbow)
         else:
             # plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,N,colors=coloriso)
-            plt.tricontour(
-                Th.q[:, 0], Th.q[:, 1], Th.me, u, levels=iso, **options
-            )
+            plt.tricontour(Th.q[:, 0], Th.q[:, 1], Th.me, u, levels=iso, **options)
         if Colorbar:
             # plt.colorbar(orientation=u'horizontal')
             plt.colorbar()
@@ -156,17 +154,13 @@ def PlotEig(pde, eigenvector, eigenvalue, **kwargs):
         u = eigenvector.real
     else:
         u = abs(eigenvector)
-    PlotVal(
-        pde.Th, u, isbounds=False, colorbar=False, caxis=caxis
-    )  # ,options=options)
+    PlotVal(pde.Th, u, isbounds=False, colorbar=False, caxis=caxis)  # ,options=options)
     # if caxis!=None :
     # plt.clim(caxis[0],caxis[1])
     PlotIsolines(pde.Th, u, iso=[0], options={"colors": "k", "linewidths": 3})
     if niso > 0:
         iso = Tchebycheff(min(u), max(u), niso)
-        PlotIsolines(
-            pde.Th, u, iso=iso, options={"colors": "k", "linewidths": 1}
-        )
+        PlotIsolines(pde.Th, u, iso=iso, options={"colors": "k", "linewidths": 1})
     plt.rc("text", usetex=True)
     if abs(eigenvalue.imag) < 1e-12:
         plt.title(r"$\lambda=%.3f$" % eigenvalue.real, **titleoptions)
@@ -204,21 +198,16 @@ def PlotEigs(pde, eigenvectors, eigenvalues, **kwargs):
         )  # ,options=options)
         # if caxis!=None :
         # plt.clim(caxis[0],caxis[1])
-        PlotIsolines(
-            pde.Th, u, iso=[0], options={"colors": "k", "linewidths": 3}
-        )
+        PlotIsolines(pde.Th, u, iso=[0], options={"colors": "k", "linewidths": 3})
         if niso > 0:
             iso = Tchebycheff(min(u), max(u), niso)
-            PlotIsolines(
-                pde.Th, u, iso=iso, options={"colors": "k", "linewidths": 1}
-            )
+            PlotIsolines(pde.Th, u, iso=iso, options={"colors": "k", "linewidths": 1})
         plt.rc("text", usetex=True)
         if abs(eigenvalues[i].imag) < 1e-12:
             plt.title(r"$\lambda=%.3f$" % eigenvalues[i].real, **titleoptions)
         else:
             plt.title(
-                r"$\lambda=(%.3f,%.3f)$"
-                % (eigenvalues[i].real, eigenvalues[i].imag),
+                r"$\lambda=(%.3f,%.3f)$" % (eigenvalues[i].real, eigenvalues[i].imag),
                 **titleoptions
             )
         plt.hold(False)
@@ -227,8 +216,7 @@ def PlotEigs(pde, eigenvectors, eigenvalues, **kwargs):
 def Tchebycheff(a, b, n):
     return 0.5 * (
         (a + b)
-        + (b - a)
-        * np.cos(np.pi + (2 * np.arange(n + 1) + 1) * np.pi / (2 * (n + 1)))
+        + (b - a) * np.cos(np.pi + (2 * np.arange(n + 1) + 1) * np.pi / (2 * (n + 1)))
     )
 
 

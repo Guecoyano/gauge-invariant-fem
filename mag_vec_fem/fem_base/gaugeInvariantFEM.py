@@ -78,12 +78,8 @@ def KgP1_OptV3_A_A(Th, D, G, dtype):
         for j in range(i):
             Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
             Kg_A[:, j, j] = Kg_A[:, j, j] + mu[:, i, j]
-            Kg_A[:, i, j] = Kg_A[:, i, j] - np.multiply(
-                mu[:, i, j], phi_A[:, i, j]
-            )
-            Kg_A[:, j, i] = Kg_A[:, j, i] - np.multiply(
-                mu[:, i, j], phi_A[:, j, i]
-            )
+            Kg_A[:, i, j] = Kg_A[:, i, j] - np.multiply(mu[:, i, j], phi_A[:, i, j])
+            Kg_A[:, j, i] = Kg_A[:, j, i] - np.multiply(mu[:, i, j], phi_A[:, j, i])
     return Kg_A
 
 
@@ -148,7 +144,7 @@ def magAssemblyP1(Th, D, G=None, **kwargs):
     return A
 
 
-def buildMagPDEsystem(magpde,Num=1):
+def buildMagPDEsystem(magpde, Num=1):
     M = magAssemblyP1(magpde.Th, magpde.op, dtype=magpde.dtype)
     b = RHS(magpde.Th, magpde.f, 1, dtype=magpde.dtype)
     [AR, bR] = RobinBC(magpde, "OptV3", 1)
@@ -167,9 +163,7 @@ def solveMagPDE(pde, **kwargs):
     split = kwargs.get("split", False)
     Tcpu = np.zeros((4,))
     tstart = time.time()
-    M = magAssemblyP1(
-        pde.Th, pde.op, Num=Num, dtype=pde.dtype, version=AssemblyVersion
-    )
+    M = magAssemblyP1(pde.Th, pde.op, Num=Num, dtype=pde.dtype, version=AssemblyVersion)
     Tcpu[0] = time.time() - tstart
     ndof = M.get_shape()[0]
     tstart = time.time()

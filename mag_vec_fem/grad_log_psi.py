@@ -17,9 +17,7 @@ res_path = data_path
 
 
 def modgradlogpsi(psi, points, eps=0, gpoints=200):
-    grid_x, grid_y = np.mgrid[
-        -0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j
-    ]
+    grid_x, grid_y = np.mgrid[-0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j]
     psigrid = np.array(griddata(points, psi, (grid_x, grid_y)))
     n = gpoints
     logpsi = np.log(np.abs(psigrid) + eps)
@@ -37,9 +35,7 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
 
 
 def logmodpsi(psi, points, eps=0, gpoints=200):
-    grid_x, grid_y = np.mgrid[
-        -0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j
-    ]
+    grid_x, grid_y = np.mgrid[-0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j]
     psigrid = np.array(griddata(points, psi, (grid_x, grid_y)))
     n = gpoints
     return np.log(np.abs(psigrid) + eps)
@@ -89,9 +85,7 @@ print(np.shape(psi))
 print("creating mesh")
 Th = HyperCube(2, int(1 / h), l=1)
 print("mesh done")
-gradlog = np.minimum(
-    modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0008
-)
+gradlog = np.minimum(modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0008)
 logpsi = logmodpsi(psi, Th.q, gpoints=400, eps=10**-10)
 plt.clf()
 plt.close()

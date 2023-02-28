@@ -9,21 +9,27 @@ import matplotlib.pyplot as plt
 import watershed.watershed_utils_gi as ws
 import watershed.watershed_merge_gi as wsm
 import pickle
+from fem_base.graphics import PlotVal, PlotIsolines
 
-h = 0.001
-
+h = 0.005
+NB = 100
+NV = 100
+coeff = 1.25
+E = NB**2 / 2
 print("load mesh")
 with open(
-    os.path.realpath(
-        os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")
-    ),
+    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
 
 print("load u")
 nameu = os.path.realpath(
-    os.path.join(data_path, "landscapes", "Na400x15sig22v0NV100NB50.npz")
+    os.path.join(
+        data_path,
+        "landscapes",
+        "h200" + "Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
+    )
 )
 u = np.load(nameu, allow_pickle=True)["u"]
 if len(u) != Th.nq:
@@ -31,24 +37,55 @@ if len(u) != Th.nq:
     exit()
 # we make sure we can invert u by adding epsilon
 epsilon = 10**-20
-u = u + epsilon
+u = np.real(u + epsilon)
 
 print("vertex structuration")
-vertex_w = ws.verticesdata_frommesh(Th, values=1 / u)
+vertex_w = ws.vertices_data_from_mesh(Th, values=(1 / u))
 
 print("find local minima")
 M = ws.label_local_minima(vertex_w, mode="irr")
 
-print("watershed")
-O = ws.watershed(vertex_w, M, mode="irr")
+print("initial watershed")
+W = ws.watershed(vertex_w, M, mode="irr")
 
-print(np.max(M))
+print("initial numberof regions:", np.max(M))
 
-"""threshold = 0.1  #This is the threshold beyond which 2 points are considered
-#not likely to be negihbors on a noramlized domain of size 1.
-#This may need to be adjusted based on the potential.
-#If no value if provided, it is 0.5 by default, but this will take long to
-# execute.
-wsm.find_neighbors(threshold = threshold)
-wsm.construct_network(u)
-independent_minima =  wsm.merge_algorithm(u)"""
+print("Structuring data")
+regions = wsm.init_regions(vertex_w, M, W)
+
+
+print("merging regions")
+
+
+def cond(min, barr):
+    return barr > coeff * min
+
+
+def shifted_cond(min, barr):
+    return barr - E > coeff * (min - E)
+
+
+merged = wsm.merge_algorithm(regions, shifted_cond)
+
+final_min = 0
+for r in merged.regions:
+    if not r.removed:
+        final_min += 1
+
+print("final number of regions:", final_min)
+
+print("Plotting boundaries over effective potential")
+x = []
+y = []
+for n in range(Th.nq):
+    if len(regions.global_boundary[n]) >= 2:
+        x.append(Th.q[n, 0])
+        y.append(Th.q[n, 1])
+plt.figure()
+plt.clf()
+E_max = (NB**4 + (NV**2 / 2) ** 2) ** (1 / 2)
+PlotVal(Th, np.minimum(1 / u, E_max))
+plt.scatter(x, y, c="k", s=2)
+plt.show()
+plt.clf()
+plt.close()

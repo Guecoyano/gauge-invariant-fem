@@ -89,9 +89,7 @@ def HAssemblyP1_baseb(Th, Hop, Num, **kwargs):
         Il = VFNum(I, il)
         for jl in range(m):
             Jl = VFNum(I, jl)
-            M[np.ix_(Il, Jl)] = DAssemblyP1_base(
-                Th, Hop.H[il][jl], spformat="lil"
-            )
+            M[np.ix_(Il, Jl)] = DAssemblyP1_base(Th, Hop.H[il][jl], spformat="lil")
     if spformat == "lil":
         return M
     else:
@@ -113,9 +111,7 @@ def HAssemblyP1_basea(Th, Hop, Num, **kwargs):
         Jl = VFNum(I, jl)
         for il in range(m):
             Il = VFNum(I, il)
-            M[np.ix_(Il, Jl)] = DAssemblyP1_base(
-                Th, Hop.H[il][jl], spformat="lil"
-            )
+            M[np.ix_(Il, Jl)] = DAssemblyP1_base(Th, Hop.H[il][jl], spformat="lil")
     if spformat == "lil":
         return M
     else:
@@ -146,15 +142,11 @@ def DElemP1(Th, Dh, k):
     if Dh.b != None:
         for i in range(d):
             if Dh.b[i] != None:
-                E = DElemP1_gudv(
-                    d, vol, getLocalfData(Dh.b[i], Th, k), i, G, E
-                )
+                E = DElemP1_gudv(d, vol, getLocalfData(Dh.b[i], Th, k), i, G, E)
     if Dh.c != None:
         for i in range(d):
             if Dh.c[i] != None:
-                E = DElemP1_gduv(
-                    d, vol, getLocalfData(Dh.c[i], Th, k), i, G, E
-                )
+                E = DElemP1_gduv(d, vol, getLocalfData(Dh.c[i], Th, k), i, G, E)
     return E
 
 

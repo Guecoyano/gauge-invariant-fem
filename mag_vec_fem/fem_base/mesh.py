@@ -52,9 +52,7 @@ def HyperCube(d, N=10, **kwargs):
         n_bins = np.flipud(N)
     bounds = np.repeat([(a, b)], d, axis=0)
 
-    A = np.mgrid[
-        [slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]
-    ]
+    A = np.mgrid[[slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]]
     q = np.array([A[i].ravel() for i in range(d)]).T
     q = q[:, range(d - 1, -1, -1)]  # Matlab like
     me = Delaunay(q).simplices
@@ -74,9 +72,7 @@ def HyperCube(d, N=10, **kwargs):
         me[Ix, d - 1] = tmp
     # Boundary
     V = np.array([x for x in itertools.combinations(range(d + 1), d)])
-    BE = np.array([me[::, V[i]] for i in range(d + 1)]).reshape(
-        nme * (d + 1), d
-    )
+    BE = np.array([me[::, V[i]] for i in range(d + 1)]).reshape(nme * (d + 1), d)
     BE.sort()
     be = np.array(
         [np.array(x) for x in set(tuple(x) for x in BE)]
@@ -122,9 +118,7 @@ def HyperCubeKuhn(d, N):
     nme = me.shape[0]
     volumes = np.ones((nme,)) / nme
     V = np.array([x for x in itertools.combinations(range(d + 1), d)])
-    BE = np.array([me[::, V[i]] for i in range(d + 1)]).reshape(
-        nme * (d + 1), d
-    )
+    BE = np.array([me[::, V[i]] for i in range(d + 1)]).reshape(nme * (d + 1), d)
     BE.sort()
     be = np.array(
         [np.array(x) for x in set(tuple(x) for x in BE)]
@@ -166,9 +160,7 @@ def ComputeVolVecOld(d, q, me):
             D[i, j - 1] = q[me[::, j], i] - q[me[::, 0], i]
 
     C = factorial(d)
-    vol = np.array(
-        [abs(linalg.det(D[::, ::, k]) / C) for k in range(D.shape[2])]
-    )
+    vol = np.array([abs(linalg.det(D[::, ::, k]) / C) for k in range(D.shape[2])])
     return vol
 
 
@@ -185,10 +177,7 @@ def ComputeVolVec(d, q, me):
             V[i, j] = V[j, i] = (X[i] * X[j]).sum(axis=1)
 
     vol = np.array(
-        [
-            np.sqrt(abs(linalg.det(V[::, ::, k]))) / factorial(d)
-            for k in range(nme)
-        ]
+        [np.sqrt(abs(linalg.det(V[::, ::, k]))) / factorial(d) for k in range(nme)]
     )
     return vol
 
@@ -203,9 +192,7 @@ def ComputeSignVolVec(q, me):
         for j in range(n):
             X[i, j] = q[me[::, i + 1], j] - q[me[::, 0], j]
         # X[i]=(q[me[::,i+1]]-q[me[::,0]]).T
-    vol = np.array(
-        [linalg.det(X[::, ::, k]) / factorial(n) for k in range(nme)]
-    )
+    vol = np.array([linalg.det(X[::, ::, k]) / factorial(n) for k in range(nme)])
     return vol  # ,X
 
 
@@ -293,9 +280,7 @@ def GetMaxLengthEdges(q, me):
     h = 0.0
     for i in range(ne):
         for j in range(i + 1, ne):
-            h = max(
-                h, np.sum((q[me[::, i]] - q[me[::, j]]) ** 2, axis=1).max()
-            )
+            h = max(h, np.sum((q[me[::, i]] - q[me[::, j]]) ** 2, axis=1).max())
     return np.sqrt(h)
 
 

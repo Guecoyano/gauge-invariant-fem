@@ -46,7 +46,7 @@ class FIFOPriorityQueue(PriorityQueue):
     """
     FIFOPriorityQueue: this is a FIFO priority queue, meaning that items are
     added to the queue with a real number priority, and when items are gotten
-    from the queue, the lower priority items go first, with FIFO used to break 
+    from the queue, the lower priority items go first, with FIFO used to break
     ties.
 
         main calls:
@@ -74,13 +74,14 @@ class FIFOPriorityQueue(PriorityQueue):
 
 
 class Vertex:
-    """The vertex class is for mesh structured data. 
+    """The vertex class is for mesh structured data.
     Parameters are:
     n: vertex index
     a,b: x,y coordinates of the vertex
     c: value of the data at the vertex
     vneighbors is the list of indices of neighbouring vertices.
     """
+
     def __init__(self, n, a, b, c):
         self.number = n
         self.x = a
@@ -156,7 +157,7 @@ def label_local_minima(I, mode=None):
     The parameter mode can be set to 'wrap' to handle periodic functions.  In
     that case we interpret I[i, j] = I[i + k n1, j + l n2] where (n1, n2) = I
     shape and k, l are arbitrary integers.
-    
+
     Mode irr:
 
     take an array of vertex class objects and returns an index list with value
@@ -196,10 +197,7 @@ def label_local_minima(I, mode=None):
         for i in range(n1):
             for j in range(n2):
                 if I[i, j] < np.min(
-                    [
-                        I[ii, jj]
-                        for (ii, jj) in neighbors(i, j, n1, n2, mode=mode)
-                    ]
+                    [I[ii, jj] for (ii, jj) in neighbors(i, j, n1, n2, mode=mode)]
                 ):
                     J[i, j] = 1.0
         mini, minj = np.where(J)
@@ -259,9 +257,7 @@ def neighbors(i, j, n1, n2, mode=None):
             ]
         )
     return l[
-        np.all(
-            (l[:, 0] > -1, l[:, 0] < n1, l[:, 1] > -1, l[:, 1] < n2), axis=0
-        ),
+        np.all((l[:, 0] > -1, l[:, 0] < n1, l[:, 1] > -1, l[:, 1] < n2), axis=0),
         :,
     ]
 
@@ -297,9 +293,9 @@ def watershed(I, M, mode=None):
     Mode 'irr' allows for mesh structured data.
     """
     if mode == "irr":
-        S = np.zeros_like(I, dtype=bool) # array: have we started with vertex
-        O = M.copy()       #watershed matrix
-        pq = FIFOPriorityQueue()   #waiting list for vertices to be assigned
+        S = np.zeros_like(I, dtype=bool)  # array: have we started with vertex
+        O = M.copy()  # watershed matrix
+        pq = FIFOPriorityQueue()  # waiting list for vertices to be assigned
 
         # Make list of local minima
         minn = []
@@ -320,27 +316,27 @@ def watershed(I, M, mode=None):
                     pq.put(nnn, I[nnn].z)
 
         # Examine each vertex in the priority queue to mark it
-        # Add its neighbors to the priority queue if they aren't in it 
+        # Add its neighbors to the priority queue if they aren't in it
         while not pq.empty():
             prio, _, n = pq.getall()
-            label = 0 # Up-to date Potential marker for n
-            watershed = False # Will tell when we consider n marked
+            label = 0  # Up-to date Potential marker for n
+            watershed = False  # Will tell when we consider n marked
             nbrs = I[n].vneighbors
             for l in range(len(nbrs)):
                 nn = nbrs[l]
                 if (O[nn] != 0) and (not watershed):
                     if (label != 0) and (O[nn] != label):
-                        watershed = True # n is marked with zero
+                        watershed = True  # n is marked with zero
                     else:
                         label = O[nn]
             if not watershed:
-                O[n] = label # n is marked as the only neighboring region label
+                O[n] = label  # n is marked as the only neighboring region label
                 # Neighbors are added to pq
                 for l in range(len(nbrs)):
                     nn = nbrs[l]
                     if not S[nn]:
                         S[nn] = True
-                        pq.put(nn, max(I[nn].z, prio)) 
+                        pq.put(nn, max(I[nn].z, prio))
 
     else:
         n1, n2 = M.shape

@@ -123,14 +123,10 @@ class gmshMesh:
                             self.nprops += 1
                         k += ntags
 
-                    verts = list(
-                        map(int, data[k:])
-                    )  # FC : fixe to run with Python3
+                    verts = list(map(int, data[k:]))  # FC : fixe to run with Python3
                     verts = numpy.array(verts) - 1  # fixe gmsh 1-based index
 
-                    if (etype not in self.Elmts) or (
-                        len(self.Elmts[etype]) == 0
-                    ):
+                    if (etype not in self.Elmts) or (len(self.Elmts[etype]) == 0):
                         # initialize
                         self.Elmts[etype] = (physid, verts)
                         self.nElmts[etype] = 1

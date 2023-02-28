@@ -122,9 +122,7 @@ def gauss_pot(V, sigma, N, L, x):
     # make the points coordinates matrix
     n_bins = (N) * np.ones(2)
     bounds = np.repeat([(-L / 2, L / 2)], 2, axis=0)
-    A = np.mgrid[
-        [slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]
-    ]
+    A = np.mgrid[[slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]]
     q = np.array([A[i].ravel() for i in range(2)]).T
     q = q[:, range(2 - 1, -1, -1)]
     return M * (1 / t), q

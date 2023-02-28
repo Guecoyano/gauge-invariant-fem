@@ -18,9 +18,7 @@ def Vertices(N, isIndice):
             bounds[i, 1] = n_bins[i] - 1
     else:
         bounds = np.repeat([(0, 1)], d, axis=0)
-    A = np.mgrid[
-        [slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]
-    ]
+    A = np.mgrid[[slice(row[0], row[1], n * 1j) for row, n in zip(bounds, n_bins)]]
     q = np.array([A[i].ravel() for i in range(d)]).T
     q = q[:, np.arange(d - 1, -1, -1)]  # Matlab like
     return q
