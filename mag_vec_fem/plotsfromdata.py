@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
 import os
 import numpy as np
+import pickle
 
 # res_path='/Volumes/Transcend/Thèse/mag_vec_fem/data'
 res_path = data_path
@@ -13,14 +14,18 @@ sigma = 2.2
 gauge = "Sym"
 N_eig = 100
 h = 0.001
-Th = HyperCube(2, int(1 / h), l=1)
+with open(
+    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
+    "rb",
+) as f:
+    Th = pickle.load(f)
 
 NB = 1
 NV = 10
 B = NB**2
 V_max = NV**2
 for v in (0,):
-    for NB in (1,5,10,15,20,30):
+    for NB in (10,15,20,30):
         for NV in (100,):
             namepot = (
                 "Na"

@@ -9,10 +9,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 from fem_base.graphics import *
 from scipy.interpolate import griddata
-from watershed_landscape import *
+import pickle
+import watershed.watershed_utils_gi as ws
+import watershed.watershed_merge_gi as wsm
+#from watershed_landscape import *
 
-# matplotlib.scale.SymmetricalLogScale(axis, *, base=10, linthresh=2, subs=None, linscale=1)
-# ax.set_yticks([0, 50, 100, 150])
 
 res_path = data_path
 
@@ -41,36 +42,24 @@ def logmodpsi(psi, points, eps=0, gpoints=200):
     return psigrid
 
 
-N_a, x, sig, v, gauge, h, N_eig = 400, 15, 22, 0, "Sym", 0.001, 100
-NV, NB = 100, 30
+N_a, x, sig, v, gauge, h, N_eig = 400, 15, 22, 0, "Sym", 0.005, 100
+NV, NB = 100, 100
 num = 1
 namepot = "Na" + str(N_a) + "x" + str(x) + "sig" + str(sig) + "v" + str(v)
 
-"""#gradlog of the potential
-namedata=os.path.realpath(os.path.join(res_path,'pre_interp_pot',namepot+'.npy'))
-dat_file=np.ravel(np.load(namedata,allow_pickle=True))
-points=np.load(os.path.join(res_path,'Vq','VqNa400.npy'))
-#name_preeig=namepot+'NV'+str(NV)+'NB'+str(NB)+gauge+'h'+str(int(1/h))
-gradlogv=modgradlogpsi(dat_file,points,gpoints=400)
-print(np.shape(gradlogv))
-
-f=plt.figure()
-plt.clf()
-im=plt.imshow(gradlogv.T,origin='lower',cmap='gist_heat')
-cbar = plt.colorbar(im)
-cbar.set_label("$grad(log(modulus(\psi )))$ ")
-plt.show()
-plt.clf()
-plt.close()"""
 print("creating mesh")
-Th = HyperCube(2, int(1 / h), l=1)
-#####################################
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
 
+
+
+
+
+
+coeff=1.1
 print("load u")
 nameu = os.path.realpath(
     os.path.join(
@@ -108,7 +97,7 @@ print("merging regions")
 def cond(min, barr):
     return barr > coeff * min
 
-
+E=NB**2/2
 def shifted_cond(min, barr):
     return barr - E > coeff * (min - E)
 
@@ -120,9 +109,24 @@ for n in range(Th.nq):
     if len(regions.global_boundary[n]) >= 2:
         x.append(Th.q[n, 0])
         y.append(Th.q[n, 1])
-############################################
+
+
+
+
+
+
+
+
+
 print("mesh done")
+h=0.001
+with open(
+    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
+    "rb",
+) as f:
+    Th = pickle.load(f)
 for NB,num in zip((30,30,30),(1,7,5)):
+    print((NB,num))
     namedata = os.path.realpath(
     os.path.join(
         res_path,
@@ -147,16 +151,16 @@ for NB,num in zip((30,30,30),(1,7,5)):
     plt.clf()
     plt.close()
     f1 = plt.subplot(1, 2, 1)
-    plt.scatter(x, y, c="k", s=2)
-    plt.imshow(gradlog.T, origin="lower", cmap="gist_heat")  # ,cmap='gist_heat'
+    plt.scatter(x, y, c="k", s=2,zorder=2)
+    plt.imshow(gradlog.T, origin="lower", cmap="gist_heat",zorder=1)
     # cbar1 = plt.colorbar(im1)
     # cbar1.set_label("$grad(log(modulus(\psi )))$ ")
     f2 = plt.subplot(1, 2, 2)
+    im2 = plt.imshow(logpsi.T, origin="lower", cmap="turbo")
     plt.scatter(x, y, c="k", s=2)
-    im2 = plt.imshow(logpsi.T, origin="lower", cmap="turbo")  # ,cmap='gist_heat'
     # cbar2 = plt.colorbar(im2)
     # cbar2.set_label("$log(modulus(\psi ))$ ")
-    t="gradlogpsi_NV"+str(NV)+"NB"+str(NB) +"boundaries"
+    t="gradlogpsi_NV"+str(NV)+"NB"+str(NB) + "num"+str(num)+"boundaries"
     plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.clf()
     plt.close()

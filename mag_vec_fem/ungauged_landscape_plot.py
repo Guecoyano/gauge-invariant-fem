@@ -15,24 +15,6 @@ import numpy as np
 
 res_path = data_path
 
-def colorscale(values, shape, edge = 0.1):
-    if shape=='grid':
-        n=len(values)
-        nedge=int(n*edge)
-        sliced_values=values[nedge:n-nedge,nedge:n-nedge]
-    elif shape == 'hypercube':
-        n=int(np.sqrt(len(values)))
-        nedge=int(n*edge)
-        sliced_values=[]
-        for i in range(nedge,n-nedge):
-            sliced_values.append(values[i*n+nedge:(i+1)*n-nedge])
-        sliced_values=np.array(sliced_values)
-    else:
-        print('Shape should be "grid" or "hypercube"')
-        return
-    vmin,vmax=np.min(sliced_values),np.max(sliced_values)
-    return [vmin,vmax]
-
 plt.close("all")
 
 h = 0.005
@@ -86,7 +68,6 @@ for NB in (100,):
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
     vmin,vmax=colorscale(u.real,'hypercube')
-    print(vmin,vmax)
     PlotVal(Th, u.real, vmin = vmin, vmax = vmax)
     #matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
     plt.title(r"Shifted landscape $N_B=%d$" % (NB))
