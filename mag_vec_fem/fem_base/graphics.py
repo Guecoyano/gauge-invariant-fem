@@ -27,17 +27,19 @@ def PlotIsolines(Th, u, **kwargs):
         Colorbar = kwargs.get("colorbar", False)
         color = kwargs.get("color", "turbo")
         options = kwargs.get("options", None)
+        vmin = kwargs.get("vmin", None)
+        vmax = kwargs.get("vmax", None)
         # ColorbarOptions=kwargs.get('ColorbarOptions', {orientation : u'horizontal'} )
         fig = plt.gcf()
         plt.gca().set_aspect("equal")
         if Fill:
             # plt.tricontourf(Th.q[:,0],Th.q[:,1],Th.me, u,N,shading='interp')
             plt.tripcolor(
-                Th.q[:, 0], Th.q[:, 1], Th.me, u, shading="gouraud", cmap=color
+                Th.q[:, 0], Th.q[:, 1], Th.me, u, shading="gouraud", cmap=color, vmin = vmin, vmax = vmax
             )  # , cmap=plt.cm.rainbow)
         else:
             # plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,N,colors=coloriso)
-            plt.tricontour(Th.q[:, 0], Th.q[:, 1], Th.me, u, levels=iso, **options)
+            plt.tricontour(Th.q[:, 0], Th.q[:, 1], Th.me, u, levels=iso, **options,vmin = vmin, vmax = vmax)
         if Colorbar:
             # plt.colorbar(orientation=u'horizontal')
             plt.colorbar()
@@ -114,12 +116,14 @@ def PlotVal(Th, x, **kwargs):
     # coloriso=kwargs.get('coloriso', None )
     caxis = kwargs.get("caxis", None)
     linewidth = kwargs.get("linewidth", None)
+    vmin = kwargs.get("vmin", None)
+    vmax = kwargs.get("vmax", None)
     # plt.hold(True)
     if isbounds:
         PlotBounds(Th, legend=False, color="k", linewidth=linewidth)
 
     #  plt.axis('off')
-    PlotIsolines(Th, x, fill=True, colorbar=colorbar)
+    PlotIsolines(Th, x, fill=True, colorbar=colorbar, vmin = vmin, vmax = vmax )
     if caxis != None:
         plt.clim(caxis[0], caxis[1])
     if N != None:

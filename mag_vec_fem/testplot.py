@@ -1,37 +1,67 @@
 # coding=utf-8
-import fem_base.gaugeInvariantFEM as gi
+from fem_base.exploit_fun import datafile, save_eigplot, data_path
+import matplotlib.pyplot as plt
 from fem_base.mesh import HyperCube
-from fem_base.graphics import *
-from fem_base.potentials import interpolate_pot
-from fem_base.exploit_fun import *
+import os
+import numpy as np
 
-pot_version = 2
-lnm = 500
-h = 0.005
-gauge = "Sym"
-l = lnm * 10**-9
-N_eig = 100
+# res_path='/Volumes/Transcend/Thèse/mag_vec_fem/data'
 res_path = data_path
-nameV = os.path.realpath(
-    os.path.join(
-        res_path,
-        "pre_interp_pot",
-        "pre_interp_potv" + str(pot_version) + "l" + str(lnm) + "E1eVx15.npy",
-    )
-)
-nameq = res_path + "/Vq/Vql" + str(lnm) + ".npy"
-Th = HyperCube(2, int(1 / h), l=lnm * 10**-9)
-V_preinterp = np.load(nameV)
-points = np.load(nameq)
-V = interpolate_pot(V_preinterp, points, Th.q)
+N_a = 400
+x = 0.15
+sigma = 2.2
+gauge = "Sym"
+N_eig = 100
+h = 0.001
+print("building mesh")
+Th = HyperCube(2, int(1 / h), l=1)
 
-plt.figure()
-plt.clf()
-PlotBounds(Th, legend=False, color="k")
-plt.axis("off")
-PlotIsolines(Th, V, N=40, fill=True, colorbar=True)
-title = "potential" + str(pot_version)
-t1 = title + ".png"
-plt.title(title)
-plt.savefig(os.path.realpath(os.path.join(res_path, t1)))
-plt.close()
+NB = 1
+NV = 10
+B = NB**2
+V_max = NV**2
+for v in (0,):
+    for NB in (1,5,10,15,20,30):
+        for NV in (200,):
+            namepot = (
+                "Na"
+                + str(N_a)
+                + "x"
+                + str(int(100 * x))
+                + "sig"
+                + str(int(10 * sigma))
+                + "v"
+                + str(v)
+            )
+            namedata = os.path.realpath(
+                os.path.join(
+                    res_path,
+                    "eigendata",
+                    namepot
+                    + "NV"
+                    + str(NV)
+                    + "NB"
+                    + str(NB)
+                    + gauge
+                    + "h"
+                    + str(int(1 / h))
+                    + "Neig"
+                    + str(N_eig)
+                    + ".npz",
+                )
+            )
+            print('loading', namedata)
+            dat_file = np.load(namedata, allow_pickle=True)
+            name_preeig = (
+                namepot
+                + "NV"
+                + str(NV)
+                + "NB"
+                + str(NB)
+                + gauge
+                + "h"
+                + str(int(1 / h))
+            )
+            print('plotting')
+            for n in range(11):
+                save_eigplot(n,200,Th, dat_file, n+1,'modulus', name_preeig)

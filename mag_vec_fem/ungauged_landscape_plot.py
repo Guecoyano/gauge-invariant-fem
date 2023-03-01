@@ -15,9 +15,27 @@ import numpy as np
 
 res_path = data_path
 
+def colorscale(values, shape, edge = 0.1):
+    if shape=='grid':
+        n=len(values)
+        nedge=int(n*edge)
+        sliced_values=values[nedge:n-nedge,nedge:n-nedge]
+    elif shape == 'hypercube':
+        n=int(np.sqrt(len(values)))
+        nedge=int(n*edge)
+        sliced_values=[]
+        for i in range(nedge,n-nedge):
+            sliced_values.append(values[i*n+nedge:(i+1)*n-nedge])
+        sliced_values=np.array(sliced_values)
+    else:
+        print('Shape should be "grid" or "hypercube"')
+        return
+    vmin,vmax=np.min(sliced_values),np.max(sliced_values)
+    return [vmin,vmax]
+
 plt.close("all")
 
-h = 0.001
+h = 0.005
 B = 10
 namepot = "Na400x15sig22v0"
 
@@ -29,7 +47,7 @@ print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
 u = []
 # namedata = namepot + "NV" + str(NV) + "NB" + str(100) + ".npz"
 # u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
-for NB in (15,):
+for NB in (100,):
     """E_s=hbar*q_e*B/(2*m_e)
     V=V_max*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
@@ -43,13 +61,13 @@ for NB in (15,):
     """
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u = np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]
+    u = np.load(res_path + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
     print("size of u", np.shape(u))
 
     print("5.   Plot")
 
     E_0 = NB**2 / 2
-    wmax = (0.7*NV**4 + E_0**2) ** (1 / 2)
+    wmax = (0.9*NV**4 + E_0**2) ** (1 / 2)
 
     '''plt.figure(NB)
     plt.clf()
@@ -67,10 +85,14 @@ for NB in (15,):
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    PlotVal(Th, np.maximum(u.real, 1 / (wmax)))
+    vmin,vmax=colorscale(u.real,'hypercube')
+    print(vmin,vmax)
+    PlotVal(Th, u.real, vmin = vmin, vmax = vmax)
+    #matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
     plt.title(r"Shifted landscape $N_B=%d$" % (NB))
     t = "u_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
-    plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    #plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    plt.show()
     plt.clf()
     plt.close()
 

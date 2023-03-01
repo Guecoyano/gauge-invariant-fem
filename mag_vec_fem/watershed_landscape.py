@@ -12,9 +12,9 @@ import pickle
 from fem_base.graphics import PlotVal, PlotIsolines
 
 h = 0.005
-NB = 100
+NB = 1
 NV = 100
-coeff = 1.25
+coeff = 1.1
 E = NB**2 / 2
 print("load mesh")
 with open(
@@ -28,7 +28,7 @@ nameu = os.path.realpath(
     os.path.join(
         data_path,
         "landscapes",
-        "h200" + "Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
+        "h200"+"Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
     )
 )
 u = np.load(nameu, allow_pickle=True)["u"]
@@ -83,8 +83,8 @@ for n in range(Th.nq):
         y.append(Th.q[n, 1])
 plt.figure()
 plt.clf()
-E_max = (NB**4 + (NV**2 / 2) ** 2) ** (1 / 2)
-PlotVal(Th, np.minimum(1 / u, E_max))
+vmin, vmax = colorscale(1/u,'hypercube')
+PlotVal(Th, 1/u, vmin = vmin, vmax= vmax)
 plt.scatter(x, y, c="k", s=2)
 plt.show()
 plt.clf()
