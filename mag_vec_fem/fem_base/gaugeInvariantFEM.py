@@ -63,6 +63,25 @@ def KgP1_OptV3_A(Th, D, G, **kwargs):
     Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
     return Kg
 
+def KgP1_OptV3_ml(Th, g, dtype):
+    gh = FEMtools.setFdata(g, Th, dtype=dtype)
+    d = Th.d
+    ndfe = d + 1
+    Kg = np.zeros((Th.nme, ndfe, ndfe), dtype=dtype)
+    gme = gh[Th.me]
+    for il in range(ndfe):
+        Kg[:, il, il] = gme[:, il]* Th.vols/3
+    return Kg
+
+def KgP1_OptV3_A_ml(Th, D, G, **kwargs):
+    d = Th.d
+    ndfe = d + 1
+    dtype = kwargs.get("dtype", complex)
+    Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
+    Kg = Kg + KgP1_OptV3_ml(Th, D.V, dtype)
+    G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
+    Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
+    return Kg
 
 def KgP1_OptV3_A_A(Th, D, G, dtype):
     d = Th.d
@@ -143,6 +162,17 @@ def magAssemblyP1(Th, D, G=None, **kwargs):
     A.eliminate_zeros()
     return A
 
+def massLumpAssemblyP1(Th, D, G=None, **kwargs):
+    dtype = kwargs.get("dtype", complex)
+    Kg = KgP1_OptV3_A_ml(Th, D, G, dtype=dtype)
+    Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
+    N = Th.nme * (Th.d + 1) ** 2
+    A = sparse.csc_matrix(
+        (np.reshape(Kg, N), (np.reshape(Ig, N), np.reshape(Jg, N))),
+        shape=(Th.nq, Th.nq),
+    )
+    A.eliminate_zeros()
+    return A
 
 def buildMagPDEsystem(magpde, Num=1):
     M = magAssemblyP1(magpde.Th, magpde.op, dtype=magpde.dtype)
@@ -262,6 +292,68 @@ def get_eigvv(**kwargs):
     )
 
     Kg = KgP1_OptV3_guv(Th, 1, complex)
+    Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
+    NN = Th.nme * (Th.d + 1) ** 2
+    M = sparse.csc_matrix(
+        (np.reshape(Kg, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),
+        shape=(Th.nq, Th.nq),
+    )
+    M.eliminate_zeros()
+
+    Tcpu[0] = time.time() - tstart
+    ndof = A_0.get_shape()[0]
+    tstart = time.time()
+    Tcpu[1] = time.time() - tstart
+    tstart = time.time()
+    # bN=NeumannBC(pde,AssemblyVersion,Num);
+    [AR, bR] = RobinBC(magpde, AssemblyVersion, Num)
+    [ID, IDc, gD] = DirichletBC(magpde, Num)
+    A = A_0 + AR
+    Tcpu[2] = time.time() - tstart
+    x = np.zeros((ndof, N), dtype=magpde.dtype)
+    w = np.zeros(N, dtype=complex)
+    tstart = time.time()
+    xx = np.repeat(gD[ID], N, axis=0)
+    x[ID, :] = np.reshape(xx, (len(ID), -1))
+    E_0 = B / 2
+    t = kwargs.get("target_energy", E_0)
+    w, x[IDc, :] = eigsh(
+        (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N, sigma=t, which="LM"
+    )
+    Tcpu[3] = time.time() - tstart
+
+    print("h=", h, "E_0=", E_0)
+    print("times:", Tcpu)
+
+    return w, x
+
+
+
+def get_eigvv_ml(**kwargs):
+    meshfile = kwargs.get("meshfile", None)
+    Th = kwargs.get("Th", None)
+    if meshfile != None:
+        Th = mesh.readGMSH(meshfile)
+    h = kwargs.get("h", 0.1)  # relative size (for a 1x1 square)
+    B = kwargs.get("B", 1)
+    N = kwargs.get("N", 1)
+    l = kwargs.get("l", 1)
+    gauge = kwargs.get("gauge", "LandauX")
+    V = kwargs.get("V", 0)
+    magpde = init_magpde(h * l, B, l, gauge, V, Th)
+    Num = 1
+    AssemblyVersion = "OptV3"
+    Tcpu = np.zeros((4,))
+    tstart = time.time()
+    A_0 = massLumpAssemblyP1(
+        magpde.Th,
+        magpde.op,
+        Num=Num,
+        dtype=magpde.dtype,
+        version=AssemblyVersion,
+    )
+
+    Kg = KgP1_OptV3_ml(Th, 1, complex)
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
     M = sparse.csc_matrix(
