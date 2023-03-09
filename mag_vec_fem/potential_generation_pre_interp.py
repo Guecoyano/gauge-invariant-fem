@@ -13,7 +13,7 @@ res_path = data_path
         name=res_path+'pre_interp_pot/pre_interp_potv'+str(v)+'l'+str(l)+'E1eVx15.npy'
         np.save(name,pot)
     np.save(res_path+'/Vq/Vql'+str(l),q_pot)
-"""
+
 v = 10
 for f in (
     lambda x, y: 2 * exp(-0.1 * ((x - 8) ** 2 + (y - 8) ** 2))
@@ -36,11 +36,11 @@ for f in (
 
 """
 l=1
-N_a=400
-for v in range(5):    
-    for x in (0.05,0.15,0.30,0.50):
-        for sigma in (1.5,2,2.2,2.5,3):
-            pot,q_pot=gauss_pot(1,sigma,N_a,l,x)
-            name=os.path.realpath(os.path.join(res_path,'pre_interp_pot/Na'+str(N_a)+'x'+str(int(100*x))+'sig'+str(int(10*sigma))+'v'+str(v)+'.npy'))
-            np.save(name,pot/np.max(pot))
-np.save(res_path+'/Vq/VqNa'+str(N_a),q_pot)"""
+for N_a in (200,50,100,300):
+    for v in range(1):    
+        for x in (0.15,0.05,0.30,0.50):
+            for sigma in (2.2,):
+                pot,q_pot=gauss_pot(1,sigma,N_a,l,x)
+                name=os.path.realpath(os.path.join(res_path,'pre_interp_pot/Na'+str(N_a)+'x'+str(int(100*x))+'sig'+str(int(10*sigma))+'v'+str(v)+'.npy'))
+                np.save(name,pot/np.max(pot))
+    np.save(res_path+'/Vq/VqNa'+str(N_a),q_pot)

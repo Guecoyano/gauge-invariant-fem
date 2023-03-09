@@ -1,60 +1,41 @@
 # coding=utf-8
 import fem_base.gaugeInvariantFEM as gi
-from fem_base.mesh import HyperCube
-from fem_base.graphics import *
-from fem_base.potentials import interpolate_pot
+#from fem_base.potentials import interpolate_pot
 from fem_base.exploit_fun import *
-from os import *
-from scipy.interpolate import griddata
+import os
+#from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 import numpy as np
-
-"""print(sys.path)
-pot_version=0
-lnm=200
-h=0.05
-gauge='Sym'
-l=lnm*10**-9
-N_eig=100
-res_path=data_path"""
+import pickle
 
 
-def connectivity(Th):
-    """Build connectivity array from mesh Th. Th.q is the list of vertices coordinates, Th.me is the list of mesh elements.
-    Th.me[b,k] is the index of vertex b in the k-th mesh element.
-    """
-    conn = Th.nq * [[]]
-    for me in Th.me:
-        if not me[0] in conn[me[1]]:
-            conn[me[0]] = conn[me[0]] + [me[1]]
-            conn[me[1]] = conn[me[1]] + [me[0]]
-        if not me[0] in conn[me[2]]:
-            conn[me[0]] = conn[me[0]] + [me[2]]
-            conn[me[2]] = conn[me[2]] + [me[0]]
-        if not me[2] in conn[me[1]]:
-            conn[me[2]] = conn[me[2]] + [me[1]]
-            conn[me[1]] = conn[me[1]] + [me[2]]
-    return conn
-
-
-def min_indices_from_loc_min(I):
-    """returns ordered list of indices of local minima"""
-    m = []
-    for n in range(len(I)):
-        if I[n] != 0:
-            m.append((I[n], n))
-    mm = sorted(m)
-    mmm = [i[1] for i in mm]
-    return mmm
-
-
-I = [0, 0, 2, 0, 3, 4, 0, 0, 0, 1, 6, 8, 7]
-print(min_indices_from_loc_min(I))
-
-"""Th = HyperCube(2, 3, l=1)
-print(Th.q.shape)
-print(Th.nme)
-print(Th.me)
-conn = connectivity(Th)
-print(conn)
-"""
+res_path = data_path
+path=os.path.realpath(os.path.join(res_path,"film_poles"))
+h = 0.01
+gauge = "Sym"
+N_eig = 1
+print("Creating mesh")
+with open(
+    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
+    "rb",
+) as f:
+    Th = pickle.load(f)
+print("Mesh done")
+N_a = 200
+x = 0.15
+sigma = 2.2
+v = 0
+nframes=15
+NBmax,NBmin=10,0
+nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
+namepot = (
+            "Na"
+            + str(N_a)
+            + "x"
+            + str(int(100 * x))
+            + "sig"
+            + str(int(10 * sigma))
+            + "v"
+            + str(v)
+        )
+V1, Th = vth_data(h, namepot, Th=Th,N_a=200)

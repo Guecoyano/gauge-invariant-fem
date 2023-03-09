@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 
 
-for h in (0.01, 0.001, 0.005):
+for h in (0.01,):# 0.001, 0.005):
     Th = HyperCube(2, int(1 / h), l=1)
     # np.save(data_path+'testh',Th,allow_pickle=True)
     with open(

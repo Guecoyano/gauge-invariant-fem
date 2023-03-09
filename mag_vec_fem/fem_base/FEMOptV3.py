@@ -103,7 +103,7 @@ def KgP1_OptV3_guv(Th, g, dtype):
 
 
 def KgP1_OptV3_gdudv(Th, g, G, i, j, dtype):
-    if g == None:
+    if g is None:
         return 0
     gh = FEMtools.setFdata(g, Th, dtype=dtype)
     d = Th.d

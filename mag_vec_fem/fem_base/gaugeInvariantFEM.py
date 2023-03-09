@@ -276,6 +276,7 @@ def get_eigvv(**kwargs):
     l = kwargs.get("l", 1)
     gauge = kwargs.get("gauge", "LandauX")
     V = kwargs.get("V", 0)
+    ml=kwargs.get("mass_lumping",False)
     magpde = init_magpde(h * l, B, l, gauge, V, Th)
     Num = 1
     AssemblyVersion = "OptV3"
@@ -283,15 +284,27 @@ def get_eigvv(**kwargs):
     verbose = kwargs.get("verbose", False)
     Tcpu = np.zeros((4,))
     tstart = time.time()
-    A_0 = magAssemblyP1(
-        magpde.Th,
-        magpde.op,
-        Num=Num,
-        dtype=magpde.dtype,
-        version=AssemblyVersion,
-    )
 
-    Kg = KgP1_OptV3_guv(Th, 1, complex)
+    print("h=", h, "E_0=", E_0)
+    if ml:
+        A_0 = massLumpAssemblyP1(
+            magpde.Th,
+            magpde.op,
+            Num=Num,
+            dtype=magpde.dtype,
+            version=AssemblyVersion,
+        )
+        Kg = KgP1_OptV3_ml(Th, 1, complex)
+    else:
+        A_0 = magAssemblyP1(
+            magpde.Th,
+            magpde.op,
+            Num=Num,
+            dtype=magpde.dtype,
+            version=AssemblyVersion,
+        )
+        Kg = KgP1_OptV3_guv(Th, 1, complex)
+    
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
     M = sparse.csc_matrix(
@@ -317,12 +330,12 @@ def get_eigvv(**kwargs):
     x[ID, :] = np.reshape(xx, (len(ID), -1))
     E_0 = B / 2
     t = kwargs.get("target_energy", E_0)
+    print("solving...")
     w, x[IDc, :] = eigsh(
         (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N, sigma=t, which="LM"
     )
     Tcpu[3] = time.time() - tstart
 
-    print("h=", h, "E_0=", E_0)
     print("times:", Tcpu)
 
     return w, x

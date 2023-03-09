@@ -1,18 +1,32 @@
 # coding=utf-8
 from fem_base.exploit_fun import *
+import pickle
 
 res_path = data_path
 
-N_eig = 20
-lnm = 200
-B = 30
-V_max = 5
-h = 0.005
-pot_version = 8
+N_eig = 5
+N_a=400
+NB=30
+NV=10
+sigma=2.2
+h = 0.01
+v = 0
 gauge = "LandauX"
+x=0.15
+
+B = NB**2
+V_max = NV**2
 
 
-V1, Th = vth_data(lnm, h, pot_version)
+with open(
+    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
+    "rb",
+) as f:
+    Th = pickle.load(f)
+namepot = ("Na" + str(N_a)+ "x"+ str(int(100 * x))+ "sig" + str(int(10 * sigma)) + "v" + str(v)   )
+V1, Th = vth_data(h, namepot, Th=Th)
 
 
-get_eigplots(N_eig, lnm, B, h, Th, V1 * V_max, V_max, gauge, pot_version)
+get_eigplots(N_eig, B, namepot,V1 * V_max, V_max,  Th, h, gauge,mass_lumping=True)
+gauge="Sym"
+get_eigplots(N_eig, B, namepot,V1 * V_max, V_max,  Th, h, gauge, mass_lumping=True)
