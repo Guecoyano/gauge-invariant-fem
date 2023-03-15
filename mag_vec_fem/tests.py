@@ -27,7 +27,7 @@ sigma = 2.2
 v = 0
 nframes=15
 NBmax,NBmin=10,0
-nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
+'''nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
 namepot = (
             "Na"
             + str(N_a)
@@ -38,4 +38,4 @@ namepot = (
             + "v"
             + str(v)
         )
-V1, Th = vth_data(h, namepot, Th=Th,N_a=200)
+V1, Th = vth_data(h, namepot, Th=Th,N_a=200)'''

@@ -16,7 +16,6 @@ from fem_base.pde import *
 from fem_base import operators
 from fem_base import mesh
 import numpy as np
-from cmath import exp
 import types
 from scipy import *
 from scipy import integrate
@@ -112,23 +111,23 @@ def phi(A0, Th):
                 x = lambda t: (1 - t) * qi + t * qj
                 A0t = lambda t: np.dot(A0(x(t)[0], x(t)[1]), qj - qi)
                 Akij = integrate.quad(A0t, 0, 1)[0]
-                pA[k, i, j] = exp(complex(0, Akij))
+                pA[k, i, j] = np.exp(complex(0, Akij))
             pA[:, j, i] = np.conjugate(pA[:, i, j])
     return pA
 
 
-def A_LandauX(x, y, B):
-    A = np.array([-y * B, 0])
+def A_LandauX(x, y):
+    A = np.array([-y, 0])
     return A
 
 
-def A_LandauY(x, y, B):
-    A = np.array([0, x * B])
+def A_LandauY(x, y):
+    A = np.array([0, x ])
     return A
 
 
-def A_Sym(x, y, B):
-    A = np.array([-y * B / 2, x * B / 2])
+def A_Sym(x, y):
+    A = np.array([-y/ 2, x / 2])
     return A
 
 
@@ -237,7 +236,7 @@ def solveMagPDE(pde, **kwargs):
 
 
 def init_magpde(h, B, l, gauge, V, Th=None):
-    A0 = lambda x, y: globals()["A_" + gauge](x, y, B)
+    A0 = lambda x, y: B*(globals()["A_" + gauge](x, y))
     if Th == None:
         T = mesh.HyperCube(2, int(l / h), l=l)
     else:
@@ -285,7 +284,7 @@ def get_eigvv(**kwargs):
     Tcpu = np.zeros((4,))
     tstart = time.time()
 
-    print("h=", h, "E_0=", E_0)
+    print("h=", h, "E_0=", B/2)
     if ml:
         A_0 = massLumpAssemblyP1(
             magpde.Th,

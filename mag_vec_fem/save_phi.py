@@ -9,8 +9,6 @@ import os
 import numpy as np
 import pickle
 
-A0_LandauX = lambda x, y: A_LandauX(x, y, 1)
-A0_Sym = lambda x, y: A_Sym(x, y, 1)
 for h in (0.01, 0.005, 0.001):
     with open(
         os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
@@ -26,7 +24,7 @@ for h in (0.01, 0.005, 0.001):
             for k in range(Th.nme):
                 qi, qj = Th.q[Th.me[k, i], :], Th.q[Th.me[k, j], :]
                 x = lambda t: (1 - t) * qi + t * qj
-                A0t = lambda t: np.dot(A0_Sym(x(t)[0], x(t)[1]), qj - qi)
+                A0t = lambda t: np.dot(A_Sym(x(t)[0], x(t)[1]), qj - qi)
                 pA[k,i,j]= integrate.quad(A0t, 0, 1)[0]
                 pA[k,j,i] = -pA[k,i,j]
                 
@@ -44,7 +42,7 @@ for h in (0.01, 0.005, 0.001):
             for k in range(Th.nme):
                 qi, qj = Th.q[Th.me[k, i], :], Th.q[Th.me[k, j], :]
                 x = lambda t: (1 - t) * qi + t * qj
-                A0t = lambda t: np.dot(A0_LandauX(x(t)[0], x(t)[1]), qj - qi)
+                A0t = lambda t: np.dot(A_LandauX(x(t)[0], x(t)[1]), qj - qi)
                 pA[k,i,j]= integrate.quad(A0t, 0, 1)[0]
                 pA[k,j,i] = -pA[k,i,j]
     with open(

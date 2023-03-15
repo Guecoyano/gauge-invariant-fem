@@ -1,13 +1,15 @@
 # coding=utf-8
+"""This script is meant to solve efficiently a lot of eigenvalue problems with on the same mesh (and gauge) but for different values of magnetic strength and/or disorder. """
+
 from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
 
 res_path = data_path
 path=os.path.realpath(os.path.join(res_path,"film_poles"))
-h = 0.001
+h = 0.01
 gauge = "Sym"
-N_eig = 1
+N_eig = 10
 print("Creating mesh")
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
@@ -19,11 +21,11 @@ N_a = 400
 x = 0.15
 sigma = 2.2
 v = 0
-nframes=50
+nframes=2
 NBmax,NBmin=10,0
 nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
 
-namepot = (
+'''namepot = (
             "Na"
             + str(N_a)
             + "x"
@@ -32,7 +34,8 @@ namepot = (
             + str(int(10 * sigma))
             + "v"
             + str(v)
-        )
+        )'''
+namepot='v6'
 V1, Th = vth_data(h, namepot, Th=Th,N_a=N_a)
 ones=np.ones(Th.nq)
 
@@ -90,11 +93,11 @@ with open(
     
 
 #prepare grad_A term
-Kg_A = np.zeros((Th.nme, ndfe, ndfe), dtype)
+Kg_A0 = np.zeros((Th.nme, ndfe, ndfe), dtype)
 for i in range(d + 1):
     for j in range(i):
-        Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
-        Kg_A[:, j, j] = Kg_A[:, j, j] + mu[:, i, j]
+        Kg_A0[:, i, i] = Kg_A0[:, i, i] + mu[:, i, j]
+        Kg_A0[:, j, j] = Kg_A0[:, j, j] + mu[:, i, j]
 
 # boundaries
 print("assemble boundaries")
@@ -125,7 +128,7 @@ for frame in range(len(nbs)):
         B=NB**2
         E_0 = B / 2
         print("h=", h, "E_0=", E_0)
-        Kg_A = np.zeros((Th.nme, ndfe, ndfe), dtype)
+        Kg_A = np.copy(Kg_A0)
         phi_A=np.exp(B*logPhi*1j)
         for i in range(d + 1):
             for j in range(i):

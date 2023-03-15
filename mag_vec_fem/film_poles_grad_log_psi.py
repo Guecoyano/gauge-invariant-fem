@@ -34,8 +34,8 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
     return np.sqrt(gx**2 + gy**2)
 
 res_path = data_path
-path=os.path.realpath(os.path.join(res_path,"film_poles"))
-h = 0.01
+path=os.path.realpath(os.path.join(res_path,"film_polesz"))
+h = 0.001
 gauge = "Sym"
 N_eig = 1
 print("Creating mesh")
@@ -46,11 +46,11 @@ with open(
     Th = pickle.load(f)
 tri=matplotlib.tri.Triangulation(Th.q[:,0], Th.q[:,1], triangles=Th.me)
 print("Mesh done")
-N_a = 200
+N_a = 400
 x = 0.15
 sigma = 2.2
 v = 0
-nframes=15
+nframes=50
 NBmax,NBmin=10,0
 nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
 namepot = (
@@ -77,7 +77,6 @@ for num in (1,):
         vmax=10**1
         vmin_grad=10**-4
         vmax_grad=10**-3
-        #plotpsi=ax1.tripcolor(tri, np.ones(Th.nq))
         plotpsi=ax1.tripcolor(Th.q[:,0],Th.q[:,1],Th.me, np.zeros(Th.nq),norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax), cmap="turbo",shading="gouraud")
         fig.colorbar(plotpsi,ax=ax1)
         plotgrad=ax2.imshow(np.zeros((10,10)).T, origin="lower", cmap="gist_heat", extent=(-0.5,0.5,-0.5,0.5),vmin=vmin_grad,vmax=vmax_grad)
@@ -85,6 +84,7 @@ for num in (1,):
         psi_frames=[]
         grad_frames=[]
         for frame in range(len(nbs)):
+            print('doing frame',frame)
             NB=nbs[frame]
 
 
@@ -148,17 +148,10 @@ for num in (1,):
                     y.append(Th.q[n, 1])
             """
 
-
-
-
-
-
-
-
             namedata = os.path.realpath(
             os.path.join(
                 res_path,
-                "film_poles",
+                "film_polesz",
                 namepot
                 +
                 "NV"+ str(NV)+ "NBmin"+ str(int(NBmin))+"NBmax"+ str(int(NBmax))+ gauge+ "h"+ str(int(1 / h))+ "Neig"+ str(N_eig)+'frame'+ str(frame)
@@ -170,10 +163,7 @@ for num in (1,):
 
         def animate(iter):
             fig.suptitle('frame'+str(iter))
-            #plotpsi=ax1.tripcolor(Th.q[:,0],Th.q[:,1],Th.me, psi_frames[iter],norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax), cmap="turbo")
             plotpsi.set_array(psi_frames[iter])
-            
-            #plotgrad=ax2.imshow(grad_frames[iter].T, origin="lower", cmap="gist_heat", extent=(-0.5,0.5,-0.5,0.5),vmin=vmin_grad,vmax=vmax_grad)
             plotgrad.set_array(grad_frames[iter].T)
             return plotpsi,plotgrad
 
@@ -192,9 +182,8 @@ for num in (1,):
         
             writer.grab_frame()
                 '''
-        #animate(5)
-        ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
-                
-        ani.save('filgrad.gif',dpi=100,fps=2)      
+        animate(5)
+        #ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
+        #ani.save('filgrad.gif',dpi=100,fps=2)      
         plt.show()
         plt.close()

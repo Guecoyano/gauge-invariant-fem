@@ -10,13 +10,17 @@ Th = HyperCube(2, int(1 / h), l=1)
 vq = np.load(os.path.join(res_path, "Vq", "VqNa400.npy"))
 for pot_version in (0,):
     N_a = 400
-    nameV = op.realpath(
+    '''nameV = op.realpath(
         op.join(
             res_path,
             "pre_interp_pot",
             "Na400x15sig22v" + str(pot_version) + ".npy",
         )
-    )
+    )'''
+    nameV=op.realpath(
+        op.join(
+            res_path,
+            "pre_interp_pot",'v6.npy'))
     V_preinterp = np.load(nameV)
 
     # V_preinterp=1/np.max(V_preinterp)*V_preinterp

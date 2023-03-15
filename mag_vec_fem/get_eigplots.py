@@ -4,10 +4,10 @@ import pickle
 
 res_path = data_path
 
-N_eig = 5
+N_eig = 10
 N_a=400
-NB=30
-NV=10
+NB=0
+NV=100
 sigma=2.2
 h = 0.01
 v = 0
@@ -24,9 +24,11 @@ with open(
 ) as f:
     Th = pickle.load(f)
 namepot = ("Na" + str(N_a)+ "x"+ str(int(100 * x))+ "sig" + str(int(10 * sigma)) + "v" + str(v)   )
+
+namepot='v6'
 V1, Th = vth_data(h, namepot, Th=Th)
 
 
 get_eigplots(N_eig, B, namepot,V1 * V_max, V_max,  Th, h, gauge,mass_lumping=True)
 gauge="Sym"
-get_eigplots(N_eig, B, namepot,V1 * V_max, V_max,  Th, h, gauge, mass_lumping=True)
+#get_eigplots(N_eig, B, namepot,V1 * V_max, V_max,  Th, h, gauge, mass_lumping=True)

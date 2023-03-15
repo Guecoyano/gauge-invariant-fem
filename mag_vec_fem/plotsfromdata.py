@@ -12,8 +12,8 @@ N_a = 400
 x = 0.15
 sigma = 2.2
 gauge = "Sym"
-N_eig = 100
-h = 0.001
+N_eig = 10
+h = 0.01
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
@@ -25,9 +25,10 @@ NV = 10
 B = NB**2
 V_max = NV**2
 for v in (0,):
-    for NB in (10,15,20,30):
+    for NB in (10,0):
+        frame=int(NB/10)
         for NV in (100,):
-            namepot = (
+            '''namepot = (
                 "Na"
                 + str(N_a)
                 + "x"
@@ -36,8 +37,9 @@ for v in (0,):
                 + str(int(10 * sigma))
                 + "v"
                 + str(v)
-            )
-            namedata = os.path.realpath(
+            )'''
+            namepot='v6'
+            '''namedata = os.path.realpath(
                 os.path.join(
                     res_path,
                     "eigendata",
@@ -51,6 +53,24 @@ for v in (0,):
                     + str(int(1 / h))
                     + "Neig"
                     + str(N_eig)
+                    + ".npz",
+                )
+            )'''
+            namedata=os.path.realpath(
+                os.path.join(
+                    res_path,
+                    "film_poles",
+                    namepot
+                    + "NV"
+                    + str(NV)
+                    + "NBmin0NBmax10"
+                    + gauge
+                    + "h"
+                    + str(int(1 / h))
+                    + "Neig"
+                    + str(N_eig)
+                    +'frame'
+                    +str(frame)
                     + ".npz",
                 )
             )
