@@ -14,7 +14,9 @@ from scipy.interpolate import griddata
 import pickle
 import watershed.watershed_utils_gi as ws
 import watershed.watershed_merge_gi as wsm
-#from watershed_landscape import *
+
+# from watershed_landscape import *
+
 
 def modgradlogpsi(psi, points, eps=0, gpoints=200):
     grid_x, grid_y = np.mgrid[-0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j]
@@ -33,69 +35,84 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
 
     return np.sqrt(gx**2 + gy**2)
 
+
 res_path = data_path
-path=os.path.realpath(os.path.join(res_path,"film_polesz"))
+# path=os.path.realpath(os.path.join(res_path,"filmpoles"))
 h = 0.001
 gauge = "Sym"
-N_eig = 1
+N_eig = 10
 print("Creating mesh")
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
-tri=matplotlib.tri.Triangulation(Th.q[:,0], Th.q[:,1], triangles=Th.me)
+tri = matplotlib.tri.Triangulation(Th.q[:, 0], Th.q[:, 1], triangles=Th.me)
 print("Mesh done")
 N_a = 400
 x = 0.15
 sigma = 2.2
 v = 0
-nframes=50
-NBmax,NBmin=10,0
-nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
+nframes = 51
+NBmax, NBmin = 10, 0
+nbs = np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
 namepot = (
-            "Na"
-            + str(N_a)
-            + "x"
-            + str(int(100 * x))
-            + "sig"
-            + str(int(10 * sigma))
-            + "v"
-            + str(v)
-        )
+    "Na"
+    + str(N_a)
+    + "x"
+    + str(int(100 * x))
+    + "sig"
+    + str(int(10 * sigma))
+    + "v"
+    + str(v)
+)
 for num in (1,):
     for NV in (100,):
-        fig,(ax1,ax2)=plt.subplots(1,2,figsize=[22/2,9/2])
-        ax1.set_xlim(-0.5,0.5)
-        ax1.set_ylim(-0.5,0.5)
-        ax1.axis("equal")
-        ax2.set_xlim(-0.5,0.5)
-        ax2.set_ylim(-0.5,0.5)
-        metadata=dict(title='testfilm', artist='Alioune Seye')
-        writer= PillowWriter(fps=15, metadata=metadata)
-        vmin=10**-1
-        vmax=10**1
-        vmin_grad=10**-4
-        vmax_grad=10**-3
-        plotpsi=ax1.tripcolor(Th.q[:,0],Th.q[:,1],Th.me, np.zeros(Th.nq),norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax), cmap="turbo",shading="gouraud")
-        fig.colorbar(plotpsi,ax=ax1)
-        plotgrad=ax2.imshow(np.zeros((10,10)).T, origin="lower", cmap="gist_heat", extent=(-0.5,0.5,-0.5,0.5),vmin=vmin_grad,vmax=vmax_grad)
+        fig, (ax1, ax2) = plt.subplots(
+            1, 2, figsize=[22 / 2, 9 / 2], gridspec_kw={"width_ratios": [6.25, 5]}
+        )
+        ax1.set_xlim(-0.5, 0.5)
+        ax1.set_ylim(-0.5, 0.5)
+        ax1.set_aspect("equal")
+        ax2.set_xlim(-0.5, 0.5)
+        ax2.set_ylim(-0.5, 0.5)
+        metadata = dict(title="testfilm", artist="Alioune Seye")
+        writer = PillowWriter(fps=15, metadata=metadata)
+        vmin = 10**-5
+        vmax = 10**1
+        vmin_grad = 10**-5
+        vmax_grad = 10**-3.2
+        plotpsi = ax1.tripcolor(
+            Th.q[:, 0],
+            Th.q[:, 1],
+            Th.me,
+            np.zeros(Th.nq),
+            norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax),
+            cmap="turbo",
+            shading="gouraud",
+        )
+        fig.colorbar(plotpsi, ax=ax1)
+        plotgrad = ax2.imshow(
+            np.zeros((10, 10)).T,
+            origin="lower",
+            cmap="gist_heat",
+            extent=(-0.5, 0.5, -0.5, 0.5),
+            vmin=vmin_grad,
+            vmax=vmax_grad,
+        )
+        xx, yy = [], []
 
-        psi_frames=[]
-        grad_frames=[]
-        for frame in range(len(nbs)):
-            print('doing frame',frame)
-            NB=nbs[frame]
+        psi_frames = []
+        grad_frames = []
+        for frame in range(0, 50, 60):  # range(len(nbs)):
+            print("doing frame", frame)
+            NB = nbs[frame]
 
-
-            """
-            coeff=1.1
+            """coeff=1.1
             print("load u")
             nameu = os.path.realpath(
                 os.path.join(
-                    data_path,
-                    "landscapes",
-                    "Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
+                    data_path,'filmpoles','u_h'+str(int(1/h))+namepot+'NV'+str(NV)+'NBmin'+str(NBmin)+'NBmax'+str(NBmax)+'frame'+str(frame)+'.npz'
                 )
             )
             u = np.load(nameu, allow_pickle=True)["u"]
@@ -115,7 +132,7 @@ for num in (1,):
             print("initial watershed")
             W = ws.watershed(vertex_w, M, mode="irr")
 
-            print("initial numberof regions:", np.max(M))
+            print("initial number of regions:", np.max(M))
 
             print("Structuring data")
             regions = wsm.init_regions(vertex_w, M, W)
@@ -146,28 +163,47 @@ for num in (1,):
                 if len(regions.global_boundary[n]) >= 2:
                     x.append(Th.q[n, 0])
                     y.append(Th.q[n, 1])
-            """
+            xx.append(x)
+            yy.append(y)"""
 
             namedata = os.path.realpath(
-            os.path.join(
-                res_path,
-                "film_polesz",
-                namepot
-                +
-                "NV"+ str(NV)+ "NBmin"+ str(int(NBmin))+"NBmax"+ str(int(NBmax))+ gauge+ "h"+ str(int(1 / h))+ "Neig"+ str(N_eig)+'frame'+ str(frame)
-                + ".npz"
-            ))
-            psi=np.load(namedata)["eig_vec"][:, num-1]
+                os.path.join(
+                    res_path,
+                    "filmpoles",
+                    namepot
+                    + "NV"
+                    + str(NV)
+                    + "NBmin"
+                    + str(int(NBmin))
+                    + "NBmax"
+                    + str(int(NBmax))
+                    + gauge
+                    + "h"
+                    + str(int(1 / h))
+                    + "Neig"
+                    + str(N_eig)
+                    + "frame"
+                    + str(frame)
+                    + ".npz",
+                )
+            )
+            psi = np.load(namedata)["eig_vec"][:, num - 1]
             psi_frames.append(np.abs(psi))
-            grad_frames.append(np.minimum(modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0008))
+            grad_frames.append(
+                np.minimum(modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0008)
+            )
 
         def animate(iter):
-            fig.suptitle('frame'+str(iter))
+            NB_iter = nbs[iter]
+            B_proxy = "{:.2e}".format(NB_iter**2)
+            fig.suptitle("Eig" + str(num) + " $B=" + B_proxy + "$")
             plotpsi.set_array(psi_frames[iter])
             plotgrad.set_array(grad_frames[iter].T)
-            return plotpsi,plotgrad
+            # plotreg=ax2.scatter(xx[iter], yy[iter], c="b", s=1,zorder=2)
+            return plotpsi, plotgrad  # ,plotreg
 
-        '''#plt.scatter(x, y, c="k", s=1,zorder=2)
+        # plt.scatter(x, y, c="k", s=1,zorder=2)
+        """
         plotpsi.set_data(Th.q[:, 0], Th.q[:, 1], Th.me, np.abs(psi), norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax), cmap="gist_heat")
         #cbar1 = plt.colorbar(im1)
         ax1.set_label("$log(modulus(\psi ))$ ")
@@ -181,9 +217,11 @@ for num in (1,):
         with writer.saving(fig, "testfilm.gif", 80):
         
             writer.grab_frame()
-                '''
-        animate(5)
-        #ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
-        #ani.save('filgrad.gif',dpi=100,fps=2)      
+                """
+
+        animate(0)
+        # ani= FuncAnimation(fig,animate,frames=3,blit=True,repeat=True,interval=1000)
+        # ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
+        # ani.save(os.path .realpath(os.path.join(data_path,'film','contour'+'NV'+str(NV)+'NB'+str(NBmin)+'-'+str(NBmax)+'eig'+str(num) +'frames50.gif')),dpi=100,fps=10)
         plt.show()
         plt.close()

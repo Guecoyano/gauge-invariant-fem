@@ -17,7 +17,7 @@ from fem_base import operators
 from fem_base import mesh
 import numpy as np
 import types
-from scipy import *
+import scipy as sp
 from scipy import integrate
 from scipy.sparse.linalg import eigsh
 from scipy.interpolate import griddata
@@ -62,6 +62,7 @@ def KgP1_OptV3_A(Th, D, G, **kwargs):
     Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
     return Kg
 
+
 def KgP1_OptV3_ml(Th, g, dtype):
     gh = FEMtools.setFdata(g, Th, dtype=dtype)
     d = Th.d
@@ -69,8 +70,9 @@ def KgP1_OptV3_ml(Th, g, dtype):
     Kg = np.zeros((Th.nme, ndfe, ndfe), dtype=dtype)
     gme = gh[Th.me]
     for il in range(ndfe):
-        Kg[:, il, il] = gme[:, il]* Th.vols/3
+        Kg[:, il, il] = gme[:, il] * Th.vols / 3
     return Kg
+
 
 def KgP1_OptV3_A_ml(Th, D, G, **kwargs):
     d = Th.d
@@ -81,6 +83,7 @@ def KgP1_OptV3_A_ml(Th, D, G, **kwargs):
     G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
     Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
     return Kg
+
 
 def KgP1_OptV3_A_A(Th, D, G, dtype):
     d = Th.d
@@ -122,12 +125,12 @@ def A_LandauX(x, y):
 
 
 def A_LandauY(x, y):
-    A = np.array([0, x ])
+    A = np.array([0, x])
     return A
 
 
 def A_Sym(x, y):
-    A = np.array([-y/ 2, x / 2])
+    A = np.array([-y / 2, x / 2])
     return A
 
 
@@ -161,6 +164,7 @@ def magAssemblyP1(Th, D, G=None, **kwargs):
     A.eliminate_zeros()
     return A
 
+
 def massLumpAssemblyP1(Th, D, G=None, **kwargs):
     dtype = kwargs.get("dtype", complex)
     Kg = KgP1_OptV3_A_ml(Th, D, G, dtype=dtype)
@@ -172,6 +176,7 @@ def massLumpAssemblyP1(Th, D, G=None, **kwargs):
     )
     A.eliminate_zeros()
     return A
+
 
 def buildMagPDEsystem(magpde, Num=1):
     M = magAssemblyP1(magpde.Th, magpde.op, dtype=magpde.dtype)
@@ -236,7 +241,7 @@ def solveMagPDE(pde, **kwargs):
 
 
 def init_magpde(h, B, l, gauge, V, Th=None):
-    A0 = lambda x, y: B*(globals()["A_" + gauge](x, y))
+    A0 = lambda x, y: B * (globals()["A_" + gauge](x, y))
     if Th == None:
         T = mesh.HyperCube(2, int(l / h), l=l)
     else:
@@ -275,7 +280,7 @@ def get_eigvv(**kwargs):
     l = kwargs.get("l", 1)
     gauge = kwargs.get("gauge", "LandauX")
     V = kwargs.get("V", 0)
-    ml=kwargs.get("mass_lumping",False)
+    ml = kwargs.get("mass_lumping", False)
     magpde = init_magpde(h * l, B, l, gauge, V, Th)
     Num = 1
     AssemblyVersion = "OptV3"
@@ -284,7 +289,7 @@ def get_eigvv(**kwargs):
     Tcpu = np.zeros((4,))
     tstart = time.time()
 
-    print("h=", h, "E_0=", B/2)
+    print("h=", h, "E_0=", B / 2)
     if ml:
         A_0 = massLumpAssemblyP1(
             magpde.Th,
@@ -303,7 +308,7 @@ def get_eigvv(**kwargs):
             version=AssemblyVersion,
         )
         Kg = KgP1_OptV3_guv(Th, 1, complex)
-    
+
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
     M = sparse.csc_matrix(
@@ -338,7 +343,6 @@ def get_eigvv(**kwargs):
     print("times:", Tcpu)
 
     return w, x
-
 
 
 def get_eigvv_ml(**kwargs):

@@ -14,7 +14,7 @@ for h in (0.01, 0.005, 0.001):
         "rb",
     ) as f:
         Th = pickle.load(f)
-    #mass lumped matrix m^0
+    # mass lumped matrix m^0
     print("assemble $m^0$")
     Kg = KgP1_OptV3_ml(Th, 1, complex)
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
@@ -25,14 +25,16 @@ for h in (0.01, 0.005, 0.001):
     )
     M.eliminate_zeros()
     with open(
-        os.path.realpath(os.path.join(data_path, "Th", "M0h" + str(int(1 / h)) + ".pkl")),
+        os.path.realpath(
+            os.path.join(data_path, "Th", "M0h" + str(int(1 / h)) + ".pkl")
+        ),
         "wb",
     ) as f:
         pickle.dump(M, f)
 
     dtype = complex
 
-    #mass lumped matrix m^1
+    # mass lumped matrix m^1
     print("assemble mu")
     d = Th.d
     ndfe = d + 1
@@ -41,7 +43,9 @@ for h in (0.01, 0.005, 0.001):
     for i in range(d):
         mu += KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
     with open(
-        os.path.realpath(os.path.join(data_path, "Th", "muh" + str(int(1 / h)) + ".pkl")),
+        os.path.realpath(
+            os.path.join(data_path, "Th", "muh" + str(int(1 / h)) + ".pkl")
+        ),
         "wb",
     ) as f:
         pickle.dump(mu, f)

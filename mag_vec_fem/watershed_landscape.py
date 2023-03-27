@@ -28,7 +28,7 @@ nameu = os.path.realpath(
     os.path.join(
         data_path,
         "landscapes",
-        "h200"+"Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
+        "h200" + "Na400x15sig22v0NV" + str(NV) + "NB" + str(NB) + ".npz",
     )
 )
 u = np.load(nameu, allow_pickle=True)["u"]
@@ -83,8 +83,8 @@ for n in range(Th.nq):
         y.append(Th.q[n, 1])
 plt.figure()
 plt.clf()
-vmin, vmax = colorscale(1/u,'hypercube')
-PlotVal(Th, 1/u, vmin = vmin, vmax= vmax)
+vmin, vmax = colorscale(1 / u, "hypercube")
+PlotVal(Th, 1 / u, vmin=vmin, vmax=vmax)
 plt.scatter(x, y, c="k", s=2)
 plt.show()
 plt.clf()

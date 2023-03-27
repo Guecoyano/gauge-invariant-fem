@@ -25,10 +25,10 @@ NV = 10
 B = NB**2
 V_max = NV**2
 for v in (0,):
-    for NB in (10,0):
-        frame=int(NB/10)
+    for NB in (10, 0):
+        frame = int(NB / 10)
         for NV in (100,):
-            '''namepot = (
+            """namepot = (
                 "Na"
                 + str(N_a)
                 + "x"
@@ -37,9 +37,9 @@ for v in (0,):
                 + str(int(10 * sigma))
                 + "v"
                 + str(v)
-            )'''
-            namepot='v6'
-            '''namedata = os.path.realpath(
+            )"""
+            namepot = "v6"
+            """namedata = os.path.realpath(
                 os.path.join(
                     res_path,
                     "eigendata",
@@ -55,8 +55,8 @@ for v in (0,):
                     + str(N_eig)
                     + ".npz",
                 )
-            )'''
-            namedata=os.path.realpath(
+            )"""
+            namedata = os.path.realpath(
                 os.path.join(
                     res_path,
                     "film_poles",
@@ -69,8 +69,8 @@ for v in (0,):
                     + str(int(1 / h))
                     + "Neig"
                     + str(N_eig)
-                    +'frame'
-                    +str(frame)
+                    + "frame"
+                    + str(frame)
                     + ".npz",
                 )
             )

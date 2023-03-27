@@ -35,12 +35,25 @@ for f in (
 
 
 """
-l=1
-for N_a in (200,50,100,300):
-    for v in range(1):    
-        for x in (0.15,0.05,0.30,0.50):
+l = 1
+for N_a in (200, 50, 100, 300):
+    for v in range(1):
+        for x in (0.15, 0.05, 0.30, 0.50):
             for sigma in (2.2,):
-                pot,q_pot=gauss_pot(1,sigma,N_a,l,x)
-                name=os.path.realpath(os.path.join(res_path,'pre_interp_pot/Na'+str(N_a)+'x'+str(int(100*x))+'sig'+str(int(10*sigma))+'v'+str(v)+'.npy'))
-                np.save(name,pot/np.max(pot))
-    np.save(res_path+'/Vq/VqNa'+str(N_a),q_pot)
+                pot, q_pot = gauss_pot(1, sigma, N_a, l, x)
+                name = os.path.realpath(
+                    os.path.join(
+                        res_path,
+                        "pre_interp_pot/Na"
+                        + str(N_a)
+                        + "x"
+                        + str(int(100 * x))
+                        + "sig"
+                        + str(int(10 * sigma))
+                        + "v"
+                        + str(v)
+                        + ".npy",
+                    )
+                )
+                np.save(name, pot / np.max(pot))
+    np.save(res_path + "/Vq/VqNa" + str(N_a), q_pot)

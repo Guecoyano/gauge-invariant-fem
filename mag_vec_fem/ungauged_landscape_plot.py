@@ -49,9 +49,9 @@ for NB in (100,):
     print("5.   Plot")
 
     E_0 = NB**2 / 2
-    wmax = (0.9*NV**4 + E_0**2) ** (1 / 2)
+    wmax = (0.9 * NV**4 + E_0**2) ** (1 / 2)
 
-    '''plt.figure(NB)
+    """plt.figure(NB)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
@@ -61,18 +61,18 @@ for NB in (100,):
     # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.show()
     plt.clf()
-    plt.close()'''
+    plt.close()"""
 
     plt.figure(NB + 1)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    vmin,vmax=colorscale(u.real,'hypercube')
-    PlotVal(Th, u.real, vmin = vmin, vmax = vmax)
-    #matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
+    vmin, vmax = colorscale(u.real, "hypercube")
+    PlotVal(Th, u.real, vmin=vmin, vmax=vmax)
+    # matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
     plt.title(r"Shifted landscape $N_B=%d$" % (NB))
     t = "u_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
-    #plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.show()
     plt.clf()
     plt.close()

@@ -21,7 +21,7 @@ NV = 10
 B = NB**2
 V_max = NV**2
 for v in (0,):
-    for NB in (1,5,10,15,20,30):
+    for NB in (1, 5, 10, 15, 20, 30):
         for NV in (200,):
             namepot = (
                 "Na"
@@ -50,7 +50,7 @@ for v in (0,):
                     + ".npz",
                 )
             )
-            print('loading', namedata)
+            print("loading", namedata)
             dat_file = np.load(namedata, allow_pickle=True)
             name_preeig = (
                 namepot
@@ -62,6 +62,6 @@ for v in (0,):
                 + "h"
                 + str(int(1 / h))
             )
-            print('plotting')
+            print("plotting")
             for n in range(11):
-                save_eigplot(n,200,Th, dat_file, n+1,'modulus', name_preeig)
+                save_eigplot(n, 200, Th, dat_file, n + 1, "modulus", name_preeig)

@@ -35,11 +35,27 @@ def PlotIsolines(Th, u, **kwargs):
         if Fill:
             # plt.tricontourf(Th.q[:,0],Th.q[:,1],Th.me, u,N,shading='interp')
             plt.tripcolor(
-                Th.q[:, 0], Th.q[:, 1], Th.me, u, shading="gouraud", cmap=color, vmin = vmin, vmax = vmax
+                Th.q[:, 0],
+                Th.q[:, 1],
+                Th.me,
+                u,
+                shading="gouraud",
+                cmap=color,
+                vmin=vmin,
+                vmax=vmax,
             )  # , cmap=plt.cm.rainbow)
         else:
             # plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,N,colors=coloriso)
-            plt.tricontour(Th.q[:, 0], Th.q[:, 1], Th.me, u, levels=iso, **options,vmin = vmin, vmax = vmax)
+            plt.tricontour(
+                Th.q[:, 0],
+                Th.q[:, 1],
+                Th.me,
+                u,
+                levels=iso,
+                **options,
+                vmin=vmin,
+                vmax=vmax
+            )
         if Colorbar:
             # plt.colorbar(orientation=u'horizontal')
             plt.colorbar()
@@ -123,7 +139,7 @@ def PlotVal(Th, x, **kwargs):
         PlotBounds(Th, legend=False, color="k", linewidth=linewidth)
 
     #  plt.axis('off')
-    PlotIsolines(Th, x, fill=True, colorbar=colorbar, vmin = vmin, vmax = vmax )
+    PlotIsolines(Th, x, fill=True, colorbar=colorbar, vmin=vmin, vmax=vmax)
     if caxis != None:
         plt.clim(caxis[0], caxis[1])
     if N != None:

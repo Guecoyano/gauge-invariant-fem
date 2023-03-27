@@ -5,11 +5,35 @@ from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
 
+h, gauge, N_eig, N_a, x, sigma, v, nframes, NBmax, NBmin = 10 * [None]
+print(sys.argv)
+get_args()
 res_path = data_path
-path=os.path.realpath(os.path.join(res_path,"film_poles"))
-h = 0.01
-gauge = "Sym"
-N_eig = 10
+path = os.path.realpath(os.path.join(res_path, "film_poles"))
+if h is None:
+    h = 0.01
+if gauge is None:
+    gauge = "Sym"
+if N_eig is None:
+    N_eig = 10
+if N_a is None:
+    N_a = 400
+if x is None:
+    x = 0.15
+if sigma is None:
+    sigma = 2.2
+if v is None:
+    v = 0
+if nframes is None:
+    nframes = 2
+if NBmax is None:
+    NBmax = 10
+if NBmin is None:
+    NBmin = 0
+
+nbs = np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
+
+
 print("Creating mesh")
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
@@ -17,15 +41,9 @@ with open(
 ) as f:
     Th = pickle.load(f)
 print("Mesh done")
-N_a = 400
-x = 0.15
-sigma = 2.2
-v = 0
-nframes=2
-NBmax,NBmin=10,0
-nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
 
-'''namepot = (
+
+"""namepot = (
             "Na"
             + str(N_a)
             + "x"
@@ -34,13 +52,13 @@ nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
             + str(int(10 * sigma))
             + "v"
             + str(v)
-        )'''
-namepot='v6'
-V1, Th = vth_data(h, namepot, Th=Th,N_a=N_a)
-ones=np.ones(Th.nq)
+        )"""
+namepot = "v6"
+V1, Th = vth_data(h, namepot, Th=Th, N_a=N_a)
+ones = np.ones(Th.nq)
 
 
-#getsaveeig
+# getsaveeig
 
 
 meshfile = None
@@ -55,7 +73,7 @@ verbose = False
 Tcpu = np.zeros((4,))
 tstart = time.time()
 
-#mass lumped matrix m^0
+# mass lumped matrix m^0
 print("assemble $m^0$")
 Kg = KgP1_OptV3_ml(Th, 1, complex)
 Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
@@ -68,7 +86,7 @@ M.eliminate_zeros()
 
 dtype = complex
 
-#mass lumped matrix m^1
+# mass lumped matrix m^1
 print("assemble m^1")
 d = Th.d
 ndfe = d + 1
@@ -77,22 +95,24 @@ mu = np.zeros((Th.nme, ndfe, ndfe), dtype)
 for i in range(d):
     mu += KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
 
-#compute normalized V term
+# compute normalized V term
 print("assemble normalized V term")
 Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
-Kg_V=KgP1_OptV3_ml(Th, (magpde.op).V, dtype)
+Kg_V = KgP1_OptV3_ml(Th, (magpde.op).V, dtype)
 
-#circulationn of the normalized vector poltential
+# circulationn of the normalized vector poltential
 print("normalized circulation of A")
-#phi_A = phi((magpde.op).A0, Th)
+# phi_A = phi((magpde.op).A0, Th)
 with open(
-    os.path.realpath(os.path.join(data_path, "logPhi", "Symh" + str(int(1 / h)) + ".pkl")),
+    os.path.realpath(
+        os.path.join(data_path, "logPhi", "Symh" + str(int(1 / h)) + ".pkl")
+    ),
     "rb",
 ) as f:
     logPhi = pickle.load(f)
-    
 
-#prepare grad_A term
+
+# prepare grad_A term
 Kg_A0 = np.zeros((Th.nme, ndfe, ndfe), dtype)
 for i in range(d + 1):
     for j in range(i):
@@ -107,42 +127,42 @@ tstart = time.time()
 Tcpu[1] = time.time() - tstart
 tstart = time.time()
 # bN=NeumannBC(pde,AssemblyVersion,Num);
-#[AR, bR] = RobinBC(magpde, AssemblyVersion, Num)
+# [AR, bR] = RobinBC(magpde, AssemblyVersion, Num)
 [ID, IDc, gD] = DirichletBC(magpde, Num)
 
 
-#operators for landscape
-Kg_delta=np.zeros((Th.nme, ndfe, ndfe), dtype)
+# operators for landscape
+Kg_delta = np.zeros((Th.nme, ndfe, ndfe), dtype)
 for i in range(d):
     Kg_delta = Kg_delta + KgP1_OptV3_gdudv(Th, ones, G, i, i, dtype)
-Kg_uV=KgP1_OptV3_guv(Th, V, dtype)
-Kg_u1 =KgP1_OptV3_guv(Th, ones, dtype)
+Kg_uV = KgP1_OptV3_guv(Th, V, dtype)
+Kg_u1 = KgP1_OptV3_guv(Th, ones, dtype)
 
-#RHS for landscapes
+# RHS for landscapes
 b = RHS(magpde.Th, magpde.f, Num, dtype=magpde.dtype, version=AssemblyVersion)
 
-#loop on parameters.
+# loop on parameters.
 for frame in range(len(nbs)):
-    NB=nbs[frame]
+    NB = nbs[frame]
     for NV in (100,):
-        B=NB**2
+        B = NB**2
         E_0 = B / 2
         print("h=", h, "E_0=", E_0)
         Kg_A = np.copy(Kg_A0)
-        phi_A=np.exp(B*logPhi*1j)
+        phi_A = np.exp(B * logPhi * 1j)
         for i in range(d + 1):
             for j in range(i):
                 Kg_A[:, i, j] = Kg_A[:, i, j] - np.multiply(mu[:, i, j], phi_A[:, i, j])
                 Kg_A[:, j, i] = Kg_A[:, j, i] - np.multiply(mu[:, i, j], phi_A[:, j, i])
-        Kg = - Kg_A+ NV**2*Kg_V
+        Kg = -Kg_A + NV**2 * Kg_V
 
         A = sparse.csc_matrix(
-         (np.reshape(Kg, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),
+            (np.reshape(Kg, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),
             shape=(Th.nq, Th.nq),
         )
         A.eliminate_zeros()
 
-        #A = A + AR
+        # A = A + AR
         Tcpu[2] = time.time() - tstart
         x = np.zeros((ndof, N_eig), dtype=magpde.dtype)
         w = np.zeros(N_eig, dtype=complex)
@@ -176,25 +196,49 @@ for frame in range(len(nbs)):
 
         print("Post-processing")
         # save in one compressed numpy file: V in nq array, th.q , w ordered in N_eig array, x ordered in nq*N_eig array
-        dir_to_save = os.path.join(path,namepot + "NV"+ str(NV)+ "NBmin"+ str(int(NBmin))+"NBmax"+ str(int(NBmax))+ gauge+ "h"+ str(int(1 / h))+ "Neig"+ str(N_eig)+'frame'+ str(frame))
+        dir_to_save = os.path.join(
+            path,
+            namepot
+            + "NV"
+            + str(NV)
+            + "NBmin"
+            + str(int(NBmin))
+            + "NBmax"
+            + str(int(NBmax))
+            + gauge
+            + "h"
+            + str(int(1 / h))
+            + "Neig"
+            + str(N_eig)
+            + "frame"
+            + str(frame),
+        )
         np.savez_compressed(dir_to_save, q=Th.q, V=V, eig_val=w, eig_vec=x)
         t_postpro = time.time() - tstart
         print("saving time:", t_postpro)
-        
-    
-        Kg_u = Kg_delta+NV**2*Kg_uV+E_0*Kg_u1
 
-        Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
+        Kg_u = Kg_delta + NV**2 * Kg_uV + E_0 * Kg_u1
+
         M_u = sparse.csc_matrix(
             (np.reshape(Kg_u, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),
             shape=(Th.nq, Th.nq),
         )
         M_u.eliminate_zeros()
         print("computing landscape")
-        x, flag = classicSolve(
-            M_u, b, ndof, gD, ID, IDc, complex, SolveOptions
+        x, flag = classicSolve(M_u, b, ndof, gD, ID, IDc, complex, SolveOptions)
+        namedata = (
+            "u_h"
+            + str(int(1 / h))
+            + namepot
+            + "NV"
+            + str(NV)
+            + "NBmin"
+            + str(int(NBmin))
+            + "NBmax"
+            + str(int(NBmax))
+            + "frame"
+            + str(frame)
         )
-        namedata = "u_h" + str(int(1 / h)) + namepot + "NV" + str(NV) + "NBmin"+ str(int(NBmin))+"NBmax"+ str(int(NBmax))+ "frame"+ str(frame)
         np.savez_compressed(
             os.path.join(path, namedata),
             q=Th.q,

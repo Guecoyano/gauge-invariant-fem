@@ -12,10 +12,12 @@ from scipy.interpolate import griddata
 import pickle
 import watershed.watershed_utils_gi as ws
 import watershed.watershed_merge_gi as wsm
-#from watershed_landscape import *
+
+# from watershed_landscape import *
 
 
 res_path = data_path
+
 
 def modgradlogpsi(psi, points, eps=0, gpoints=200):
     grid_x, grid_y = np.mgrid[-0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j]
@@ -37,7 +39,7 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
 
 def logmodpsi(psi, points, eps=0, gpoints=200):
     grid_x, grid_y = np.mgrid[-0.5 : 0.5 : gpoints * 1j, -0.5 : 0.5 : gpoints * 1j]
-    psigrid = np.array(griddata(points, np.log(np.abs(psi)+eps), (grid_x, grid_y)))
+    psigrid = np.array(griddata(points, np.log(np.abs(psi) + eps), (grid_x, grid_y)))
     n = gpoints
     return psigrid
 
@@ -55,11 +57,7 @@ with open(
     Th = pickle.load(f)
 
 
-
-
-
-
-coeff=1.1
+coeff = 1.1
 print("load u")
 nameu = os.path.realpath(
     os.path.join(
@@ -97,7 +95,10 @@ print("merging regions")
 def cond(min, barr):
     return barr > coeff * min
 
-E=NB**2/2
+
+E = NB**2 / 2
+
+
 def shifted_cond(min, barr):
     return barr - E > coeff * (min - E)
 
@@ -118,54 +119,59 @@ for n in range(Th.nq):
         y.append(Th.q[n, 1])
 
 
-
-
-
-
-
 print("mesh done")
-h=0.001
+h = 0.001
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
-for NB,num in zip((30,30,30),(1,7,5)):
-    print((NB,num))
+for NB, num in zip((30, 30, 30), (1, 7, 5)):
+    print((NB, num))
     namedata = os.path.realpath(
-    os.path.join(
-        res_path,
-        "eigendata",
-        namepot
-        + "NV"
-        + str(NV)
-        + "NB"
-        + str(NB)
-        + gauge
-        + "h"
-        + str(int(1 / h))
-        + "Neig"
-        + str(N_eig)
-        + ".npz",
+        os.path.join(
+            res_path,
+            "eigendata",
+            namepot
+            + "NV"
+            + str(NV)
+            + "NB"
+            + str(NB)
+            + gauge
+            + "h"
+            + str(int(1 / h))
+            + "Neig"
+            + str(N_eig)
+            + ".npz",
+        )
     )
+    psi = np.load(namedata)["eig_vec"][:, num - 1]
+
+    gradlog = np.minimum(
+        modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0001 * (4 + 2 * NB / 30)
     )
-    psi = np.load(namedata)["eig_vec"][:, num-1]
-    
-    gradlog = np.minimum(modgradlogpsi(psi, Th.q, gpoints=400, eps=10**-10), 0.0001*(4+2*NB/30))
     logpsi = logmodpsi(psi, Th.q, gpoints=400, eps=10**-5)
     plt.clf()
     plt.close()
     f1 = plt.subplot(1, 2, 1)
-    plt.scatter(x, y, c="k", s=1,zorder=2)
-    plt.imshow(gradlog.T, origin="lower", cmap="gist_heat",zorder=1,extent=(-0.5,0.5,-0.5,0.5))
+    plt.scatter(x, y, c="k", s=1, zorder=2)
+    plt.imshow(
+        gradlog.T,
+        origin="lower",
+        cmap="gist_heat",
+        zorder=1,
+        extent=(-0.5, 0.5, -0.5, 0.5),
+    )
     # cbar1 = plt.colorbar(im1)
     # cbar1.set_label("$grad(log(modulus(\psi )))$ ")
     f2 = plt.subplot(1, 2, 2)
-    im2 = plt.imshow(logpsi.T, origin="lower", cmap="turbo", extent=(-0.5,0.5,-0.5,0.5))
+    im2 = plt.imshow(
+        logpsi.T, origin="lower", cmap="turbo", extent=(-0.5, 0.5, -0.5, 0.5)
+    )
     plt.scatter(x, y, c="k", s=1)
     # cbar2 = plt.colorbar(im2)
     # cbar2.set_label("$log(modulus(\psi ))$ ")
-    t="gradlogpsi_NV"+str(NV)+"NB"+str(NB) + "num"+str(num)+"boundaries"
+    t = "gradlogpsi_NV" + str(NV) + "NB" + str(NB) + "num" + str(num) + "boundaries"
     plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.clf()
     plt.close()
