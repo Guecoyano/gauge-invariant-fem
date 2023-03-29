@@ -5,31 +5,26 @@ from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
 
-h, gauge, N_eig, N_a, x, sigma, v, nframes, NBmax, NBmin = 10 * [None]
-print(sys.argv)
-get_args()
 res_path = data_path
 path = os.path.realpath(os.path.join(res_path, "film_poles"))
-if h is None:
-    h = 0.01
-if gauge is None:
-    gauge = "Sym"
-if N_eig is None:
-    N_eig = 10
-if N_a is None:
-    N_a = 400
-if x is None:
-    x = 0.15
-if sigma is None:
-    sigma = 2.2
-if v is None:
-    v = 0
-if nframes is None:
-    nframes = 2
-if NBmax is None:
-    NBmax = 10
-if NBmin is None:
-    NBmin = 0
+params = [
+    ("h", 0.001),
+    ("gauge", "Sym"),
+    ("N_eig", 10),
+    ("N_a", 400),
+    ("x", 0.15),
+    ("sigma", 2.2),
+    ("v", 0),
+    ("nframes", 2),
+    ("NBmax", 10),
+    ("NBmin", 0),
+]
+for param, default in params:
+    prescribed = variable_value(param, sys.argv)
+    if prescribed is not None:
+        globals()[param] = prescribed
+    else:
+        globals()[param] = default
 
 nbs = np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
 

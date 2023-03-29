@@ -1,0 +1,28 @@
+#!/bin/bash
+
+H=0.01
+NV=100
+NBMIN=0
+NBMAX=10
+NFRAMES=3
+NEIG=10
+GAUGE="Sym"
+U="True"
+
+today=$( date +%Y%m%d )   # or: printf -v today '%(%Y%m%d)T' -1
+number=0
+
+fname="${today}film"
+DIR0="/Users/aliouneseye/Documents/data/${fname}"
+DIR=$DIR0
+while [ -e "$DIR" ]; do
+    printf -v DIR '%s-%02d' "$DIR0" "$(( ++number ))"
+done
+
+mkdir "$DIR"
+cp script_film ${DIR}/script
+
+for foo in $(seq 0 $NFRAMES )
+do
+  sbatch one_computation.slurm "NB=${NBMIN}+${foo}*(${NBMAX}-${NBMIN})/${NFRAMES}"  NV=$NV Neig=$NEIG dir_to_save=$DIR h=$H gauge=$GAUGE u=$U
+done
