@@ -1,6 +1,6 @@
 #!/bin/bash
 
-H=0.01
+H_1=100
 NV=100
 NBMIN=0
 NBMAX=10
@@ -9,7 +9,7 @@ NEIG=10
 GAUGE="Sym"
 U="True"
 NAMEPOT="Na400x15sig22v0"
-NAME_EIG="${NAMEPOT}NV${NV}NBmin${NB}NBmax${NBMAX}${GAUGE}h"+str(int(1/${H}))+"Neig${N_EIG}"
+NAME_EIG="${NAMEPOT}NV${NV}NBmin${NB}NBmax${NBMAX}${GAUGE}h${H_1}Neig${N_EIG}"
 
 today=$( date +%Y%m%d )   # or: printf -v today '%(%Y%m%d)T' -1
 number=0
@@ -26,5 +26,5 @@ cp script_film ${DIR}/script
 
 for foo in $(seq 0 $NFRAMES )
 do
-  sbatch one_computation.slurm "NB=${NBMIN}+${foo}*(${NBMAX}-${NBMIN})/${NFRAMES}"  NV=$NV Neig=$NEIG dir_to_save=$DIR h=$H gauge=$GAUGE u=$U name_eig="${NAME_EIG}frame${foo}"
+  sbatch one_computation.slurm "NB=${NBMIN}+${foo}*(${NBMAX}-${NBMIN})/${NFRAMES}"  NV=$NV Neig=$NEIG dir_to_save=$DIR h=1/$H_1 gauge=$GAUGE u=$U name_eig="${NAME_EIG}frame${foo}"
 done
