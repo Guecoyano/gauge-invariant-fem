@@ -23,7 +23,9 @@ params = [
     ("NV", False, 0),
     ("namepot", True, None),
     ("target_energy", False, None),
-    ("dir_to_save", True, None)
+    ("dir_to_save", True, None),
+    ("name_eig", True, None),
+    ("name_u", True, None),
 ]
 print(sys.argv)
 for param, is_string, default in params:
@@ -49,6 +51,29 @@ if dir_to_save is None:
     dir_to_save = os.path.join(
             res_path,
             "film_poles"
+    )
+if name_eig is None:
+    name=(
+        namepot
+        + "NV"
+        + str(NV)
+        + "NB"
+        + str(int(NB))
+        + gauge
+        + "h"
+        + str(int(1 / h))
+        + "Neig"
+        + str(N_eig)
+    )
+if name_u is None:
+    name_u= (
+        "u_h"
+        + str(int(1 / h))
+        + namepot
+        + "NV"
+        + str(NV)
+        + "NB"
+        + str(int(NB))
     )
 
 print("Creating mesh")
@@ -199,18 +224,7 @@ if eig:
     print("Post-processing")
     # save in one compressed numpy file: V in nq array, th.q , w ordered in N_eig array, x ordered in nq*N_eig array
     
-    name=(
-        namepot
-        + "NV"
-        + str(NV)
-        + "NB"
-        + str(int(NB))
-        + gauge
-        + "h"
-        + str(int(1 / h))
-        + "Neig"
-        + str(N_eig)
-    )
+    
     
     np.savez_compressed(os.path.join(dir_to_save,name), q=Th.q, V=V, eig_val=w, eig_vec=x)
     t_postpro = time.time() - tstart
@@ -226,17 +240,8 @@ if u:
     M_u.eliminate_zeros()
     print("computing landscape")
     x, flag = classicSolve(M_u, b, ndof, gD, ID, IDc, complex, SolveOptions)
-    name= (
-        "u_h"
-        + str(int(1 / h))
-        + namepot
-        + "NV"
-        + str(NV)
-        + "NB"
-        + str(int(NB))
-    )
     np.savez_compressed(
-        os.path.join(dir_to_save, name),
+        os.path.join(dir_to_save, name_u),
         q=Th.q,
         u=x,
     )
