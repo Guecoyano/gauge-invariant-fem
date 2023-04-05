@@ -11,8 +11,8 @@ import numpy as np
 import pickle
 
 
-res_path = data_path
-path = os.path.realpath(os.path.join(res_path, "film_poles"))
+res_pathldhsbc = data_path
+path = os.path.realpath(os.path.join(res_pathldhsbc, "film_poles"))
 h = 0.01
 gauge = "Sym"
 N_eig = 1

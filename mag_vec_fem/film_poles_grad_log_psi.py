@@ -36,15 +36,15 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
     return np.sqrt(gx**2 + gy**2)
 
 
-res_path = data_path
-# path=os.path.realpath(os.path.join(res_path,"filmpoles"))
+load_path = os.path.realpath(os.path.join(data_path,"20230404film-01"))
+save_path = os.path.realpath(os.path.join(data_path,"filmpoles"))
+# path=os.path.realpath(os.path.join(data_path,"filmpoles"))
 h = 0.001
 gauge = "Sym"
 N_eig = 10
 print("Creating mesh")
 with open(
-    os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
-    "rb",
+    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")), "rb",
 ) as f:
     Th = pickle.load(f)
 tri = matplotlib.tri.Triangulation(Th.q[:, 0], Th.q[:, 1], triangles=Th.me)
@@ -53,18 +53,11 @@ N_a = 400
 x = 0.15
 sigma = 2.2
 v = 0
-nframes = 51
-NBmax, NBmin = 10, 0
-nbs = np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
+nframes = 151
+NBmax, NBmin = 30, 0
+nbs = np.linspace(NBmin, NBmax, nframes)#np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
 namepot = (
-    "Na"
-    + str(N_a)
-    + "x"
-    + str(int(100 * x))
-    + "sig"
-    + str(int(10 * sigma))
-    + "v"
-    + str(v)
+    f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
 )
 for num in (1,):
     for NV in (100,):
@@ -76,7 +69,7 @@ for num in (1,):
         ax1.set_aspect("equal")
         ax2.set_xlim(-0.5, 0.5)
         ax2.set_ylim(-0.5, 0.5)
-        metadata = dict(title="testfilm", artist="Alioune Seye")
+        metadata = dict(title="poles film", artist="Alioune Seye")
         writer = PillowWriter(fps=15, metadata=metadata)
         vmin = 10**-5
         vmax = 10**1
@@ -104,7 +97,7 @@ for num in (1,):
 
         psi_frames = []
         grad_frames = []
-        for frame in range(0, 50, 60):  # range(len(nbs)):
+        for frame in range(len(nbs)):  # range(0, 50, 60):
             print("doing frame", frame)
             NB = nbs[frame]
 
@@ -168,23 +161,8 @@ for num in (1,):
 
             namedata = os.path.realpath(
                 os.path.join(
-                    res_path,
-                    "filmpoles",
-                    namepot
-                    + "NV"
-                    + str(NV)
-                    + "NBmin"
-                    + str(int(NBmin))
-                    + "NBmax"
-                    + str(int(NBmax))
-                    + gauge
-                    + "h"
-                    + str(int(1 / h))
-                    + "Neig"
-                    + str(N_eig)
-                    + "frame"
-                    + str(frame)
-                    + ".npz",
+                    load_path,
+                    f"{namepot}NV{NV}NBmin{int(NBmin)}NBmax{int(NBmax)}{gauge}h{int(1 / h)}Neig{N_eig}frame{frame}.npz",
                 )
             )
             psi = np.load(namedata)["eig_vec"][:, num - 1]
@@ -196,7 +174,7 @@ for num in (1,):
         def animate(iter):
             NB_iter = nbs[iter]
             B_proxy = "{:.2e}".format(NB_iter**2)
-            fig.suptitle("Eig" + str(num) + " $B=" + B_proxy + "$")
+            fig.suptitle(f"Eig {num} $B= {B_proxy}$")
             plotpsi.set_array(psi_frames[iter])
             plotgrad.set_array(grad_frames[iter].T)
             # plotreg=ax2.scatter(xx[iter], yy[iter], c="b", s=1,zorder=2)
@@ -219,9 +197,9 @@ for num in (1,):
             writer.grab_frame()
                 """
 
-        animate(0)
+        #animate(0)
         # ani= FuncAnimation(fig,animate,frames=3,blit=True,repeat=True,interval=1000)
-        # ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
-        # ani.save(os.path .realpath(os.path.join(data_path,'film','contour'+'NV'+str(NV)+'NB'+str(NBmin)+'-'+str(NBmax)+'eig'+str(num) +'frames50.gif')),dpi=100,fps=10)
+        ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
+        ani.save(os.path .realpath(os.path.join(save_path,f"{namepot}NV{NV}NB{NBmin}-{NBmax}eig{num}frames{nframes}.gif")),dpi=100,fps=10)
         plt.show()
         plt.close()

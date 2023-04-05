@@ -9,13 +9,13 @@ NEIG=10
 GAUGE="Sym"
 U="True"
 NAMEPOT="Na400x15sig22v0"
-NAME_EIG="${NAMEPOT}NV${NV}NBmin${NB}NBmax${NBMAX}${GAUGE}h${H_1}Neig${N_EIG}"
+NAME_EIG="${NAMEPOT}NV${NV}NBmin${NBMIN}NBmax${NBMAX}${GAUGE}h${H_1}Neig${NEIG}"
 
 today=$( date +%Y%m%d )   # or: printf -v today '%(%Y%m%d)T' -1
 number=0
 
 fname="${today}film"
-DIR0="/Users/aliouneseye/Documents/data/${fname}"
+DIR0="/home/ase/gauge-invariant-fem/mag_vec_fem/data/${fname}"
 DIR=$DIR0
 while [ -e "$DIR" ]; do
     printf -v DIR '%s-%02d' "$DIR0" "$(( ++number ))"

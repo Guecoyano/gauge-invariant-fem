@@ -13,7 +13,7 @@ from matplotlib.text import Text
 from math import cos
 import numpy as np
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 plt.close("all")
 
@@ -28,7 +28,7 @@ V1, Th = vth_data(h, namepot)
 print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
 u = []
 namedata = namepot + "NV" + str(NV) + "NB" + str(0) + ".npz"
-u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
+u += [np.load(res_pathldhsbc + "/landscapes/" + namedata, allow_pickle=True)["u"]]
 for NB in (5, 10):
     """E_s=hbar*q_e*B/(2*m_e)
     V=V_max*V1+E_s
@@ -43,7 +43,7 @@ for NB in (5, 10):
     """
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
+    u += [np.load(res_pathldhsbc + "/landscapes/" + namedata, allow_pickle=True)["u"]]
 
     print("5.   Plot")
 

@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 # res_path='/Volumes/Transcend/Thèse/mag_vec_fem/data'
-res_path = data_path
+res_pathldhsbc = data_path
 N_a = 400
 x = 0.15
 sigma = 2.2
@@ -35,7 +35,7 @@ for v in (0,):
             )
             namedata = os.path.realpath(
                 os.path.join(
-                    res_path,
+                    res_pathldhsbc,
                     "eigendata",
                     namepot
                     + "NV"

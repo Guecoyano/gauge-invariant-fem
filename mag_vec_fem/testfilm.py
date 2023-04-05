@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import PillowWriter
 
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 N_a = 200
 x = 0.15

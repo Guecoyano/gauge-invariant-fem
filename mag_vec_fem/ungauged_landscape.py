@@ -11,7 +11,7 @@ from fem_base.common import *
 import numpy as np
 import pickle
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 d = 2
 namepot = "Na400x15sig22v0"
@@ -40,7 +40,7 @@ for NV, NB in zip((100,), (1,)):
     # in the data name NB reps the shift through E_s=NB**2/2
     namedata = "h" + str(int(1 / h)) + namepot + "NV" + str(NV) + "NB" + str(NB)
     np.savez_compressed(
-        os.path.realpath(os.path.join(res_path, "landscapes", namedata)),
+        os.path.realpath(os.path.join(res_pathldhsbc, "landscapes", namedata)),
         q=Th.q,
         u=x,
     )

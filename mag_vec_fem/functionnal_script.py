@@ -3,7 +3,7 @@ from fem_base.exploit_fun import *
 import os
 from fem_base.exploit_fun import data_path
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 
 N_eig = 10

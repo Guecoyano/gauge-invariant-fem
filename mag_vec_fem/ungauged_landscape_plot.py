@@ -13,7 +13,7 @@ from matplotlib.text import Text
 from math import cos
 import numpy as np
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 plt.close("all")
 
@@ -43,7 +43,7 @@ for NB in (100,):
     """
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u = np.load(res_path + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
+    u = np.load(res_pathldhsbc + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
     print("size of u", np.shape(u))
 
     print("5.   Plot")

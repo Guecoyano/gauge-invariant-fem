@@ -16,7 +16,7 @@ import watershed.watershed_merge_gi as wsm
 # from watershed_landscape import *
 
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 
 def modgradlogpsi(psi, points, eps=0, gpoints=200):
@@ -130,7 +130,7 @@ for NB, num in zip((30, 30, 30), (1, 7, 5)):
     print((NB, num))
     namedata = os.path.realpath(
         os.path.join(
-            res_path,
+            res_pathldhsbc,
             "eigendata",
             namepot
             + "NV"
@@ -172,6 +172,6 @@ for NB, num in zip((30, 30, 30), (1, 7, 5)):
     # cbar2 = plt.colorbar(im2)
     # cbar2.set_label("$log(modulus(\psi ))$ ")
     t = "gradlogpsi_NV" + str(NV) + "NB" + str(NB) + "num" + str(num) + "boundaries"
-    plt.savefig(os.path.realpath(os.path.join(res_path, t)))
+    plt.savefig(os.path.realpath(os.path.join(res_pathldhsbc, t)))
     plt.clf()
     plt.close()

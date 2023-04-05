@@ -1,7 +1,7 @@
 # coding=utf-8
 from fem_base.exploit_fun import *
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 lnm = 200
 h = 0.01

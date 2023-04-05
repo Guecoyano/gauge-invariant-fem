@@ -5,8 +5,8 @@ from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
 
-res_path = data_path
-path = os.path.realpath(os.path.join(res_path, "film_poles"))
+res_pathldhsbc = data_path
+path = os.path.realpath(os.path.join(res_pathldhsbc, "film_poles"))
 
 #parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
 params = [
@@ -27,6 +27,7 @@ params = [
     ("name_eig", True, None),
     ("name_u", True, None),
 ]
+eig=u=h=gauge=N_eig=N_a=x=sigma=v=NB=NV=namepot=target_energy=dir_to_save=name_eig=name_u=None
 print(sys.argv)
 for param, is_string, default in params:
     prescribed = variable_value(param, is_string, sys.argv[1:])
@@ -49,11 +50,11 @@ if target_energy is None:
     target_energy=(NB**2)/2
 if dir_to_save is None:
     dir_to_save = os.path.join(
-            res_path,
+            res_pathldhsbc,
             "film_poles"
     )
 if name_eig is None:
-    name=(
+    name_eig=(
         namepot
         + "NV"
         + str(NV)
@@ -191,13 +192,13 @@ if eig:
 
     # A = A + AR
     Tcpu[2] = time.time() - tstart
-    x = np.zeros((ndof, N_eig), dtype=magpde.dtype)
+    x_sol = np.zeros((ndof, N_eig), dtype=magpde.dtype)
     w = np.zeros(N_eig, dtype=complex)
     tstart = time.time()
     xx = np.repeat(gD[ID], N_eig, axis=0)
-    x[ID, :] = np.reshape(xx, (len(ID), -1))
+    x_sol[ID, :] = np.reshape(xx, (len(ID), -1))
     print("solving...")
-    w, x[IDc, :] = eigsh(
+    w, x_sol[IDc, :] = eigsh(
         (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=E_0, which="LM"
     )
     Tcpu[3] = time.time() - tstart
@@ -214,9 +215,9 @@ if eig:
     w_ord = np.sort(w_disordered, axis=0, order="energy")
     I = [i[1] for i in w_ord]
     w = np.array([i[0] for i in w_ord])
-    x_ = np.copy(x)
+    x_ = np.copy(x_sol)
     for i in range(N_eig):
-        x[:, i] = x_[:, I[i]]
+        x_sol[:, i] = x_[:, I[i]]
     t_order = time.time() - tstart
     print("ordering time:", t_order)
     tstart = time.time()
@@ -226,7 +227,7 @@ if eig:
     
     
     
-    np.savez_compressed(os.path.join(dir_to_save,name), q=Th.q, V=V, eig_val=w, eig_vec=x)
+    np.savez_compressed(os.path.join(dir_to_save,name_eig), q=Th.q, V=V, eig_val=w, eig_vec=x_sol)
     t_postpro = time.time() - tstart
     print("saving time:", t_postpro)
 
@@ -239,9 +240,9 @@ if u:
     )
     M_u.eliminate_zeros()
     print("computing landscape")
-    x, flag = classicSolve(M_u, b, ndof, gD, ID, IDc, complex, SolveOptions)
+    x_sol, flag = classicSolve(M_u, b, ndof, gD, ID, IDc, complex, SolveOptions)
     np.savez_compressed(
         os.path.join(dir_to_save, name_u),
         q=Th.q,
-        u=x,
+        u=x_sol,
     )

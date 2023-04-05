@@ -5,7 +5,7 @@ from fem_base.mesh import HyperCube
 import os
 import numpy as np
 
-res_path = data_path
+res_pathldhsbc = data_path
 namepot = "Na400x15sig22v0"
 V_max = 50
 h = 0.001

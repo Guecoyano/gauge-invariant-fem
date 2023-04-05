@@ -2,7 +2,7 @@
 from fem_base.exploit_fun import *
 import pickle
 
-res_path = data_path
+res_pathldhsbc = data_path
 
 N_eig = 10
 N_a = 400

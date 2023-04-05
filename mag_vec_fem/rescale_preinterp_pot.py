@@ -10,7 +10,7 @@ lnm = 500
 h = 0.005
 gauge = "Sym"
 N_eig = 100
-res_path = data_path
+res_pathldhsbc = data_path
 """for pot_version in range(1):
     for lnm in (50, 100, 200, 500, 1000):
         nameV = os.path.realpath(
@@ -29,7 +29,7 @@ for N_a in (200, 50, 100, 300):
             for sigma in (2.2,):
                 name = os.path.realpath(
                     os.path.join(
-                        res_path,
+                        res_pathldhsbc,
                         "pre_interp_pot/Na"
                         + str(N_a)
                         + "x"

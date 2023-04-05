@@ -6,7 +6,7 @@ from math import exp
 from fem_base.exploit_fun import data_path
 import os
 
-res_path = data_path
+res_pathldhsbc = data_path
 """for l in [50,100,200,500,1000]:
     for v in range(5):
         pot,q_pot=gauss_pot(eV,2.2,int(l/0.56),l*10**-9,0.15)
@@ -43,7 +43,7 @@ for N_a in (200, 50, 100, 300):
                 pot, q_pot = gauss_pot(1, sigma, N_a, l, x)
                 name = os.path.realpath(
                     os.path.join(
-                        res_path,
+                        res_pathldhsbc,
                         "pre_interp_pot/Na"
                         + str(N_a)
                         + "x"
@@ -56,4 +56,4 @@ for N_a in (200, 50, 100, 300):
                     )
                 )
                 np.save(name, pot / np.max(pot))
-    np.save(res_path + "/Vq/VqNa" + str(N_a), q_pot)
+    np.save(res_pathldhsbc + "/Vq/VqNa" + str(N_a), q_pot)

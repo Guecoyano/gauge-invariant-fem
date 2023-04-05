@@ -5,8 +5,8 @@ from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
 
-res_path = data_path
-path = os.path.realpath(os.path.join(res_path, "film_poles"))
+res_pathldhsbc = data_path
+path = os.path.realpath(os.path.join(res_pathldhsbc, "film_poles"))
 params = [
     ("h", 0.001),
     ("gauge", "Sym"),
