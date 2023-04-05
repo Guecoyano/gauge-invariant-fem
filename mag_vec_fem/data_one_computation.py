@@ -172,8 +172,6 @@ Kg_u1 = KgP1_OptV3_guv(Th, ones, dtype)
 # RHS for landscapes
 b = RHS(magpde.Th, magpde.f, Num, dtype=magpde.dtype, version=AssemblyVersion)
 
-B = NB**2
-E_0 = B / 2
 if eig:
     print("computing eigenproblem")
     print("h=", h,"namepot=",namepot, "NB=",NB,"NV=",NV, "target energy=",target_energy,"Neig=",N_eig)
@@ -199,7 +197,7 @@ if eig:
     x_sol[ID, :] = np.reshape(xx, (len(ID), -1))
     print("solving...")
     w, x_sol[IDc, :] = eigsh(
-        (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=E_0, which="LM"
+        (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which="LM"
     )
     Tcpu[3] = time.time() - tstart
 
@@ -232,7 +230,7 @@ if eig:
     print("saving time:", t_postpro)
 
 if u:
-    Kg_u = Kg_delta + NV**2 * Kg_uV + E_0 * Kg_u1
+    Kg_u = Kg_delta + NV**2 * Kg_uV + (NB**2) * Kg_u1
 
     M_u = sparse.csc_matrix(
         (np.reshape(Kg_u, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),

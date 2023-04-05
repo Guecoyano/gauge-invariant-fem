@@ -59,7 +59,7 @@ nbs = np.linspace(NBmin, NBmax, nframes)#np.sqrt(np.linspace(NBmin**2, NBmax**2,
 namepot = (
     f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
 )
-for num in (1,):
+for num in (2,):
     for NV in (100,):
         fig, (ax1, ax2) = plt.subplots(
             1, 2, figsize=[22 / 2, 9 / 2], gridspec_kw={"width_ratios": [6.25, 5]}
@@ -152,12 +152,15 @@ for num in (1,):
 
             x = []
             y = []
+            z = []
             for n in range(Th.nq):
                 if len(regions.global_boundary[n]) >= 2:
                     x.append(Th.q[n, 0])
                     y.append(Th.q[n, 1])
+                    z.append(u[n])
             xx.append(x)
-            yy.append(y)"""
+            yy.append(y)
+            zz.append(z)"""
 
             namedata = os.path.realpath(
                 os.path.join(
@@ -177,7 +180,7 @@ for num in (1,):
             fig.suptitle(f"Eig {num} $B= {B_proxy}$")
             plotpsi.set_array(psi_frames[iter])
             plotgrad.set_array(grad_frames[iter].T)
-            # plotreg=ax2.scatter(xx[iter], yy[iter], c="b", s=1,zorder=2)
+            # plotreg=ax2.scatter(xx[iter], yy[iter], c=zz[iter], cmap='turbo', s=1,zorder=2)
             return plotpsi, plotgrad  # ,plotreg
 
         # plt.scatter(x, y, c="k", s=1,zorder=2)

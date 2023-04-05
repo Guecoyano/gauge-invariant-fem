@@ -33,10 +33,7 @@ for param, is_string, default in params:
 if namepot is None:
     namepot=(f"Na{N_a}x{int(100*x)}sig{int(10*sigma)}v{v}")
 if dir_to_save is None:
-    dir_to_save = os.path.join(
-            data_path,
-            "film_poles"
-    )
+    dir_to_save = os.path.join(data_path, "eigenplots")
 if name_eig is None:
     name_eig=(f"{namepot}NV{NV}NB{NB}{gauge}h{int(1/h)}Neig{N_eig}"
     )
@@ -47,4 +44,4 @@ with open(
     Th = pickle.load(f)
 
 dat_file = np.load(load_file, allow_pickle=True)
-saveplots_fromdata(Th, dat_file, name_eig, phase=True)
+saveplots_fromdata(Th, dat_file, name_eig, dir_to_save=dir_to_save, phase=True)
