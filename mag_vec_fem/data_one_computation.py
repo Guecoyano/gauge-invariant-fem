@@ -76,6 +76,7 @@ if name_u is None:
         + "NB"
         + str(int(NB))
     )
+B=NB**2
 
 print("Creating mesh")
 with open(
@@ -230,7 +231,7 @@ if eig:
     print("saving time:", t_postpro)
 
 if u:
-    Kg_u = Kg_delta + NV**2 * Kg_uV + (NB**2) * Kg_u1
+    Kg_u = Kg_delta + NV**2 * Kg_uV + (NB**2)/2 * Kg_u1
 
     M_u = sparse.csc_matrix(
         (np.reshape(Kg_u, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),
