@@ -47,7 +47,7 @@ if namepot is None:
             + str(v)
     )
 if target_energy is None:
-    target_energy=(NB**2)/2
+    target_energy=(NB**2)
 if dir_to_save is None:
     dir_to_save = os.path.join(
             res_pathldhsbc,
