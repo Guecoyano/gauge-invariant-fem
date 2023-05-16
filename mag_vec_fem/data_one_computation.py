@@ -28,7 +28,9 @@ params = [
     ("name_u", True, None),
 ]
 eig=u=h=gauge=N_eig=N_a=x=sigma=v=NB=NV=namepot=target_energy=dir_to_save=name_eig=name_u=None
+
 print(sys.argv)
+
 for param, is_string, default in params:
     prescribed = variable_value(param, is_string, sys.argv[1:])
     if prescribed is not None:
@@ -36,16 +38,7 @@ for param, is_string, default in params:
     else:
         globals()[param] = default
 if namepot is None:
-    namepot=(
-            "Na"
-            + str(N_a)
-            + "x"
-            + str(int(100 * x))
-            + "sig"
-            + str(int(10 * sigma))
-            + "v"
-            + str(v)
-    )
+    namepot=f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
 if target_energy is None:
     target_energy=(NB**2)
 if dir_to_save is None:
@@ -54,28 +47,9 @@ if dir_to_save is None:
             "film_poles"
     )
 if name_eig is None:
-    name_eig=(
-        namepot
-        + "NV"
-        + str(NV)
-        + "NB"
-        + str(int(NB))
-        + gauge
-        + "h"
-        + str(int(1 / h))
-        + "Neig"
-        + str(N_eig)
-    )
+    name_eig=f"{namepot}NV{NV}NB{int(NB)}{gauge}h{int(1 / h)}Neig{N_eig}"
 if name_u is None:
-    name_u= (
-        "u_h"
-        + str(int(1 / h))
-        + namepot
-        + "NV"
-        + str(NV)
-        + "NB"
-        + str(int(NB))
-    )
+    name_u=f"u_h{int(1 / h)}{namepot}NV{NV}NB{int(NB)}"
 B=NB**2
 
 print("Creating mesh")
@@ -226,12 +200,12 @@ if eig:
     
     
     
-    np.savez_compressed(os.path.join(dir_to_save,name_eig), q=Th.q, V=V, eig_val=w, eig_vec=x_sol)
+    #np.savez_compressed(os.path.join(dir_to_save,name_eig), q=Th.q, V=V, eig_val=w, eig_vec=x_sol)
     t_postpro = time.time() - tstart
     print("saving time:", t_postpro)
-
+    print(w)
 if u:
-    Kg_u = Kg_delta + NV**2 * Kg_uV + (NB**2)/2 * Kg_u1
+    Kg_u = Kg_delta + NV**2 * Kg_uV + (NB**2) * Kg_u1
 
     M_u = sparse.csc_matrix(
         (np.reshape(Kg_u, NN), (np.reshape(Ig, NN), np.reshape(Jg, NN))),

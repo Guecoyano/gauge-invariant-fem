@@ -23,45 +23,13 @@ with open(
 ) as f:
     Th = pickle.load(f)
 print("Mesh done")
-N_a = 200
+N_a = 400
 x = 0.15
 sigma = 2.2
 v = 0
-nframes = 15
+"""nframes = 15
 NBmax, NBmin = 10, 0
-"""nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))
-namepot = (
-            "Na"
-            + str(N_a)
-            + "x"
-            + str(int(100 * x))
-            + "sig"
-            + str(int(10 * sigma))
-            + "v"
-            + str(v)
-        )
-V1, Th = vth_data(h, namepot, Th=Th,N_a=200)"""
-dtype = complex
-A0 = gi.A_LandauX
-G = gi.FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
-
-d = Th.d
-ndfe = d + 1
-mu = np.zeros((Th.nme, ndfe, ndfe), dtype)
-Kg_A = np.zeros((Th.nme, ndfe, ndfe), dtype)
-for i in range(d):
-    mu += gi.KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
-phi_A = gi.phi(A0, Th)
-for i in range(d + 1):
-    for j in range(i):
-        Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
-        Kg_A[:, j, j] = Kg_A[:, j, j] + mu[:, i, j]
-        Kg_A[:, i, j] = Kg_A[:, i, j] - np.multiply(mu[:, i, j], phi_A[:, i, j])
-        Kg_A[:, j, i] = Kg_A[:, j, i] - np.multiply(mu[:, i, j], phi_A[:, j, i])
-
-
-Kg_fp = np.zeros((Th.nme, ndfe, ndfe), dtype)
-for i in range(d + 1):
-    for j in range(i):
-        Kg_fp[:, i, i] = Kg_fp[:, i, i] + mu[:, i, j]
-        Kg_fp[:, j, j] = Kg_fp[:, j, j] + mu[:, i, j]
+nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))"""
+namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}mean1"
+V1, Th = vth_data(h, namepot, Th=Th,N_a=N_a)
+print(np.mean(V1))

@@ -8,28 +8,30 @@ from fem_base.FEM import *
 from fem_base.mesh import *
 from fem_base.pde import *
 from fem_base.common import *
-from fem_base.graphics import PlotVal, PlotMesh, PlotBounds, FillMesh
-from matplotlib.text import Text
-from math import cos
+from fem_base.graphics import PlotVal, PlotMesh, PlotBounds
+import pickle
 import numpy as np
 
-res_pathldhsbc = data_path
+res_path = data_path
 
 plt.close("all")
 
-h = 0.005
-B = 10
+h = 0.001
 namepot = "Na400x15sig22v0"
 
 print("1. Set square mesh")
-# Th=HyperCube(2,int(1/h),l=lnm*10**-9)
+with open(
+    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")), "rb",
+) as f:
+    Th = pickle.load(f)
 NV = 100
-V1, Th = vth_data(h, namepot)
-print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
-u = []
+#V1, Th = vth_data(h, namepot)
+#print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
+#u = []
 # namedata = namepot + "NV" + str(NV) + "NB" + str(100) + ".npz"
 # u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
-for NB in (100,):
+for NB in (300,400):
+    load_file=f"mag_vec_fem/data/merc5avril2023/u_h{int(1/h)}{namepot}NV{NV}NB{NB}.npz"
     """E_s=hbar*q_e*B/(2*m_e)
     V=V_max*V1+E_s
     print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
@@ -43,27 +45,29 @@ for NB in (100,):
     """
 
     namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u = np.load(res_pathldhsbc + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
+    u = np.load(load_file, allow_pickle=True)["u"]
+    #np.load(res_path + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
     print("size of u", np.shape(u))
 
     print("5.   Plot")
-
+    epsilon=10**-20
     E_0 = NB**2 / 2
-    wmax = (0.9 * NV**4 + E_0**2) ** (1 / 2)
+    w=np.reciprocal(np.maximum(np.real(u), epsilon))-E_0
+    wmin, wmax = colorscale(w, "hypercube")
 
-    """plt.figure(NB)
+    plt.figure(NB)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    PlotVal(Th, np.add(np.reciprocal(np.maximum(np.real(u), 1 / wmax)), -E_0))
+    PlotVal(Th, w ,vmin=wmin,vmax=wmax)
     plt.title(r"Effective potential with shift $N_B=%d$ minus $E_0$" % (NB))
-    t = "deltaw_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
+    t = "w_E0" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
     # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.show()
     plt.clf()
-    plt.close()"""
+    plt.close()
 
-    plt.figure(NB + 1)
+    """plt.figure(NB + 1)
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
@@ -75,7 +79,7 @@ for NB in (100,):
     # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
     plt.show()
     plt.clf()
-    plt.close()
+    plt.close()"""
 
 
 """ 
