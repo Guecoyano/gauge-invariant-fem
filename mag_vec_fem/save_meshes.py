@@ -7,11 +7,11 @@ import numpy as np
 import pickle
 
 
-for h in (0.01,):  # 0.001, 0.005):
-    Th = HyperCube(2, int(1 / h), l=1)
+for h in (0.001,):  # 0.001, 0.005):
+    Th = HyperCube(2, int(1 / h), l=200)
     # np.save(data_path+'testh',Th,allow_pickle=True)
     with open(
-        os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
+        os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + "L200.pkl")),
         "wb",
     ) as f:
         pickle.dump(Th, f)

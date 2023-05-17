@@ -13,7 +13,7 @@ import pickle
 
 res_pathldhsbc = data_path
 path = os.path.realpath(os.path.join(res_pathldhsbc, "film_poles"))
-h = 0.01
+h = 0.001
 gauge = "Sym"
 N_eig = 1
 print("Creating mesh")
@@ -31,5 +31,5 @@ v = 0
 NBmax, NBmin = 10, 0
 nbs = np.sqrt(np.linspace(NBmin**2,NBmax**2,nframes))"""
 namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}mean1"
-V1, Th = vth_data(h, namepot, Th=Th,N_a=N_a)
+V1, Th = vth_data(h, namepot, Th=Th)
 print(np.mean(V1))

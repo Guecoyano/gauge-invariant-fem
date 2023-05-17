@@ -26,7 +26,7 @@ Th = HyperCube(2, int(1 / h), l=1)
 plt.close("all")
 for NV, NB in zip((100, 100, 100), (5, 10, 15)):
     for Num in (1, 2, 3, 4):
-        print("Charging namepot, NV=" + str(NV) + " NB=" + str(NB))
+        print(f"Charging {namepot}, NV=" + str(NV) + " NB=" + str(NB))
         dat_file = datafile(namepot, NV, NB, gauge, h, N_eig)
         print("Reading")
         read_eigplot(n, namepot, NV, NB, Th, dat_file, Num, "modulus")
