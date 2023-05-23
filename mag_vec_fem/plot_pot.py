@@ -5,27 +5,31 @@ from matplotlib import pyplot as plt
 import pickle
 
 res_path = data_path
-lnm = 200
+L = 200
 h = 0.001
-N_a=400
-x=0.15
-sigma=2.2
+N_a = 400
+x = 0.15
+sigma = 2.2
 with open(
-    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")), "rb",
+    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")),
+    "rb",
 ) as f:
     Th = pickle.load(f)
+Th.q = L * Th.q
 vq = np.load(os.path.join(res_path, "Vq", "VqNa400.npy"))
 for v in (0,):
     N_a = 400
-    namepot=f"Na{N_a}x{int(100*x)}sig{int(10*sigma)}v{v}"
+    namepot = f"Na{N_a}x{int(100*x)}sig{int(10*sigma)}v{v}"
     nameV = op.realpath(op.join(res_path, "pre_interp_pot", f"{namepot}.npy"))
     V_preinterp = np.load(nameV)
 
     # V_preinterp=1/np.max(V_preinterp)*V_preinterp
     # V1,Th=vth_data(lnm,h,pot_version,Th=Th)
-    V = interpolate_pot(V_preinterp, vq, Th.q)
+    V = interpolate_pot(V_preinterp, L * vq, Th.q)
+    mean = np.mean(V)
+    V = V / mean
     plt.close()
-    PlotIsolines(Th, 1/V, fill=True, colorbar=True)
+    PlotIsolines(Th, V, fill=True, colorbar=True)
     # plt.imshow(V,cmap='turbo')
     plt.show()
     plt.clf()

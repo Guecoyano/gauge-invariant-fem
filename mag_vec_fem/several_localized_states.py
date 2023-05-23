@@ -1,5 +1,5 @@
 # coding=utf-8
-from fem_base.exploit_fun import variable_value, saveplots_fromdata, data_path
+from fem_base.exploit_fun import *
 import os
 import numpy as np
 import pickle
@@ -8,24 +8,23 @@ import sys
 # parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
 params = [
     ("h", False, 0.001),
+    ("L", False, 200),
     ("gauge", True, "Sym"),
     ("N_eig", False, 10),
+    ("eig_list", False, [1, 2, 3, 4, 5]),
     ("N_a", False, 400),
     ("x", False, 0.15),
     ("sigma", False, 2.2),
     ("v", False, 0),
-    ("NB", False, 0),
-    ("NV", False, 0),
+    ("beta", False, 0),
+    ("eta", False, 0),
     ("namepot", True, None),
     ("load_file", True, None),
     ("dir_to_save", True, None),
     ("name_eig", True, None),
 ]
-h = (
-    gauge
-) = (
-    N_eig
-) = N_a = x = sigma = v = NB = NV = namepot = load_file = dir_to_save = name_eig = None
+h = L = gauge = N_eig = N_a = x = sigma = v = beta = eta = namepot =None
+load_file = dir_to_save = name_eig = eig_list = None
 print(sys.argv)
 
 for param, is_string, default in params:
@@ -39,12 +38,21 @@ if namepot is None:
 if dir_to_save is None:
     dir_to_save = os.path.join(data_path, "eigenplots")
 if name_eig is None:
-    name_eig = f"{namepot}NV{NV}NB{NB}{gauge}h{int(1/h)}Neig{N_eig}"
+    name_eig = f"{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}Neig{N_eig}"
 with open(
     os.path.realpath(os.path.join(data_path, "Th", f"h{int(1 / h)}.pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
+Th.q = L * Th.q
 
 dat_file = np.load(load_file, allow_pickle=True)
-saveplots_fromdata(Th, dat_file, name_eig, dir_to_save=dir_to_save, phase=True)
+x = dat_file["eig_vec"]
+eigs = np.abs(x[:, eig_list])
+mod_tot = np.sum(eigs, 1)
+plt.figure()
+plt.axis("off")
+PlotIsolines(Th, mod_tot, fill=True, colorbar=True, color="turbo")
+plt.show()
+plt.close()
+plt.clf()

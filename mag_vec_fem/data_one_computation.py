@@ -8,27 +8,43 @@ from fem_base.gaugeInvariantFEM import *
 res_path = data_path
 path = os.path.realpath(os.path.join(res_path, "film_poles"))
 
-#parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
+# parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
 params = [
-    ("eig",False,True),
-    ("u",False, False),
-    ("h", False, 0.001),
+    ("eig", False, True),
+    ("u", False, False),
+    ("h", False, 0.01),
     ("gauge", True, "Sym"),
     ("N_eig", False, 10),
     ("N_a", False, 400),
     ("x", False, 0.15),
     ("sigma", False, 2.2),
     ("v", False, 0),
-    ("L",False,200),
-    ("beta", False, 0),
-    ("eta", False, 0.2),
+    ("L", False, 200),
+    ("beta", False, 0.2),
+    ("eta", False, 0.1),
     ("namepot", True, None),
     ("target_energy", False, None),
     ("dir_to_save", True, None),
     ("name_eig", True, None),
     ("name_u", True, None),
 ]
-eig=u=h=gauge=N_eig=N_a=x=sigma=v=L=eta=beta=namepot=target_energy=dir_to_save=name_eig=name_u=None
+eig = (
+    u
+) = (
+    h
+) = (
+    gauge
+) = (
+    N_eig
+) = (
+    N_a
+) = (
+    x
+) = (
+    sigma
+) = (
+    v
+) = L = eta = beta = namepot = target_energy = dir_to_save = name_eig = name_u = None
 
 print(sys.argv)
 
@@ -39,15 +55,15 @@ for param, is_string, default in params:
     else:
         globals()[param] = default
 if namepot is None:
-    namepot=f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
+    namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
 if target_energy is None:
-    target_energy=beta
+    target_energy = beta + eta * 0
 if dir_to_save is None:
     dir_to_save = res_path
 if name_eig is None:
-    name_eig=f"{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}{gauge}h{int(1 / h)}Neig{N_eig}"
+    name_eig = f"{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}{gauge}h{int(1 / h)}Neig{N_eig}"
 if name_u is None:
-    name_u=f"u_h{int(1 / h)}{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}"
+    name_u = f"u_h{int(1 / h)}{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}"
 
 print("Creating mesh")
 with open(
@@ -55,13 +71,13 @@ with open(
     "rb",
 ) as f:
     Th = pickle.load(f)
-    Th.q=L*Th.q
-    Th.vols=(L**2)*Th.vols
-    
+    Th.q = L * Th.q
+    Th.vols = (L**2) * Th.vols
+
 print("Mesh done")
-#Th=None
-V_unscaled, Th = vth_data(h, namepot, L=L,Th=Th, N_a=N_a)
-V1= (1 / np.mean(V_unscaled) )* V_unscaled
+# Th=None
+V_unscaled, Th = vth_data(h, namepot, L=L, Th=Th, N_a=N_a)
+V1 = (1 / np.mean(V_unscaled)) * V_unscaled
 print(np.mean(V1))
 ones = np.ones(Th.nq)
 
@@ -134,12 +150,11 @@ if eig:
     # phi_A = phi((magpde.op).A0, Th)
     with open(
         os.path.realpath(
-            os.path.join(data_path, "logPhi", gauge+"h" + str(int(1 / h)) + ".pkl")
+            os.path.join(data_path, "logPhi", gauge + "h" + str(int(1 / h)) + ".pkl")
         ),
         "rb",
     ) as f:
-        logPhi = pickle.load(f)
-
+        logPhi = (L**2) * pickle.load(f)
 
     # prepare grad_A term
     Kg_A = np.zeros((Th.nme, ndfe, ndfe), dtype)
@@ -147,9 +162,20 @@ if eig:
         for j in range(i):
             Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
             Kg_A[:, j, j] = Kg_A[:, j, j] + mu[:, i, j]
-    
+
     print("computing eigenproblem")
-    print("h=", h,"namepot=",namepot, f"beta={beta}",f"eta={eta}", "target energy=",target_energy,"Neig=",N_eig)
+    print(
+        "h=",
+        h,
+        "namepot=",
+        namepot,
+        f"beta={beta}",
+        f"eta={eta}",
+        "target energy=",
+        target_energy,
+        "Neig=",
+        N_eig,
+    )
     phi_A = np.exp(beta * logPhi * 1j)
     for i in range(d + 1):
         for j in range(i):
@@ -197,14 +223,14 @@ if eig:
 
     print("Post-processing")
     # save in one compressed numpy file: V in nq array, th.q , w ordered in N_eig array, x ordered in nq*N_eig array
-    
-    
-    
-    #np.savez_compressed(os.path.join(dir_to_save,name_eig), q=Th.q, V=V, eig_val=w, eig_vec=x_sol)
+
+    np.savez_compressed(
+        os.path.join(dir_to_save, name_eig), q=Th.q, V=V1, eig_val=w, eig_vec=x_sol
+    )
     t_postpro = time.time() - tstart
     print("saving time:", t_postpro)
     print(w)
-    
+    """
     for n in range(N_eig):
         E_proxy = "{:.2e}".format(w[n - 1])
         plt.figure(n)
@@ -219,7 +245,7 @@ if eig:
         plt.title(f"{ti}(modulus){tle}")
     plt.show()
     plt.close()
-    plt.clf()
+    plt.clf()"""
 if u:
     Kg_u = Kg_delta + eta * Kg_uV + beta * Kg_u1
 

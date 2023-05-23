@@ -1,0 +1,4 @@
+cd Documents/Thèse\ loc\ EHQ/python/gauge-invariant-fem
+
+watershed landscape
+python3 mag_vec_fem/watershed_landscape.py load_file=mag_vec_fem/data/20230522_charon/u_Na400x15sig22v0L200eta1e-1beta2e-1h1000.npz E_barr=0.2 which_cond="shifted_cond" coeff=1.25 beta=0.2

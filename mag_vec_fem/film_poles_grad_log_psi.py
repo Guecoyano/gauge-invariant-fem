@@ -36,15 +36,16 @@ def modgradlogpsi(psi, points, eps=0, gpoints=200):
     return np.sqrt(gx**2 + gy**2)
 
 
-load_path = os.path.realpath(os.path.join(data_path,"20230404film-01"))
-save_path = os.path.realpath(os.path.join(data_path,"filmpoles"))
+load_path = os.path.realpath(os.path.join(data_path, "20230404film-01"))
+save_path = os.path.realpath(os.path.join(data_path, "filmpoles"))
 # path=os.path.realpath(os.path.join(data_path,"filmpoles"))
 h = 0.001
 gauge = "Sym"
 N_eig = 10
 print("Creating mesh")
 with open(
-    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")), "rb",
+    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")),
+    "rb",
 ) as f:
     Th = pickle.load(f)
 tri = matplotlib.tri.Triangulation(Th.q[:, 0], Th.q[:, 1], triangles=Th.me)
@@ -55,10 +56,10 @@ sigma = 2.2
 v = 0
 nframes = 151
 NBmax, NBmin = 30, 0
-nbs = np.linspace(NBmin, NBmax, nframes)#np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
-namepot = (
-    f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
-)
+nbs = np.linspace(
+    NBmin, NBmax, nframes
+)  # np.sqrt(np.linspace(NBmin**2, NBmax**2, nframes))
+namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
 for num in (2,):
     for NV in (100,):
         fig, (ax1, ax2) = plt.subplots(
@@ -200,9 +201,20 @@ for num in (2,):
             writer.grab_frame()
                 """
 
-        #animate(0)
+        # animate(0)
         # ani= FuncAnimation(fig,animate,frames=3,blit=True,repeat=True,interval=1000)
-        ani= FuncAnimation(fig,animate,frames=nframes,blit=True,repeat=True,interval=1000)
-        ani.save(os.path .realpath(os.path.join(save_path,f"{namepot}NV{NV}NB{NBmin}-{NBmax}eig{num}frames{nframes}.gif")),dpi=100,fps=10)
+        ani = FuncAnimation(
+            fig, animate, frames=nframes, blit=True, repeat=True, interval=1000
+        )
+        ani.save(
+            os.path.realpath(
+                os.path.join(
+                    save_path,
+                    f"{namepot}NV{NV}NB{NBmin}-{NBmax}eig{num}frames{nframes}.gif",
+                )
+            ),
+            dpi=100,
+            fps=10,
+        )
         plt.show()
         plt.close()

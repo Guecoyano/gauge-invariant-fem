@@ -30,26 +30,26 @@ with open(
 ) as f:
     Th = pickle.load(f)
 for N_a in (200, 50, 100, 300, 400):
-#for N_a in (400,):
+    # for N_a in (400,):
     for v in range(5):
         for x in (0.15, 0.05, 0.30, 0.50):
-        #for x in (0.15,):
+            # for x in (0.15,):
             for sigma in (2.2,):
-                namepot =f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
-                name= os.path.realpath(
+                namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
+                name = os.path.realpath(
                     os.path.join(
                         res_pathldhsbc,
                         f"pre_interp_pot/{namepot}.npy",
                     )
                 )
-                name_mean= os.path.realpath(
+                name_mean = os.path.realpath(
                     os.path.join(
                         res_pathldhsbc,
                         f"pre_interp_pot/{namepot}mean1.npy",
                     )
                 )
                 V_unscaled = np.load(name)
-                V1,Th=vth_data(h, namepot, Th=Th,N_a=N_a)
+                V1, Th = vth_data(h, namepot, Th=Th, N_a=N_a)
                 V_scaled = 1 / np.mean(V1) * V_unscaled
-                print(np.max(V_unscaled),np.max(V_scaled),np.mean(V1))
+                print(np.max(V_unscaled), np.max(V_scaled), np.mean(V1))
                 np.save(name_mean, V_scaled)

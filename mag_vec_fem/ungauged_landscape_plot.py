@@ -8,95 +8,103 @@ from fem_base.FEM import *
 from fem_base.mesh import *
 from fem_base.pde import *
 from fem_base.common import *
-from fem_base.graphics import PlotVal, PlotMesh, PlotBounds
+from fem_base.graphics import PlotVal, PlotBounds
 import pickle
 import numpy as np
+import os
 
-res_path = data_path
+# parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
+params = [
+    ("h", False, 0.001),
+    ("gauge", True, "Sym"),
+    ("N_eig", False, 10),
+    ("N_a", False, 400),
+    ("x", False, 0.15),
+    ("sigma", False, 2.2),
+    ("v", False, 0),
+    ("beta", False, 0),
+    ("eta", False, 0),
+    ("plot_u", False, True),
+    ("plot_w", False, True),
+    ("namepot", True, None),
+    ("load_file", True, None),
+    ("dir_to_save", True, None),
+    ("name_u", True, None),
+    ("name_w", True, None),
+]
+h = (
+    gauge
+) = (
+    N_eig
+) = (
+    N_a
+) = (
+    x
+) = (
+    sigma
+) = (
+    v
+) = (
+    beta
+) = eta = namepot = load_file = dir_to_save = plot_u = plot_w = name_u = name_w = None
+print(sys.argv)
 
+for param, is_string, default in params:
+    prescribed = variable_value(param, is_string, sys.argv[1:])
+    if prescribed is not None:
+        globals()[param] = prescribed
+    else:
+        globals()[param] = default
+if namepot is None:
+    namepot = f"Na{N_a}x{int(100*x)}sig{int(10*sigma)}v{v}"
+if dir_to_save is None:
+    dir_to_save = os.path.join(data_path, "eigenplots")
+if name_u is None:
+    name_u = f"u_{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}"
+if name_w is None:
+    name_w = f"w_{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}"
 plt.close("all")
-
-h = 0.001
-namepot = "Na400x15sig22v0"
 
 print("1. Set square mesh")
 with open(
-    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")), "rb",
+    os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")),
+    "rb",
 ) as f:
     Th = pickle.load(f)
-NV = 100
-#V1, Th = vth_data(h, namepot)
-#print("  -> Mesh sizes : nq=%d, nme=%d, nbe=%d" % (Th.nq, Th.nme, Th.nbe))
-#u = []
-# namedata = namepot + "NV" + str(NV) + "NB" + str(100) + ".npz"
-# u += [np.load(res_path + "/landscapes/" + namedata, allow_pickle=True)["u"]]
-for NB in (300,400):
-    load_file=f"mag_vec_fem/data/merc5avril2023/u_h{int(1/h)}{namepot}NV{NV}NB{NB}.npz"
-    """E_s=hbar*q_e*B/(2*m_e)
-    V=V_max*V1+E_s
-    print("2. 3. Set and solve BVP : 2D Magnetic Schrödinger")
-    x=gi.getSol(Th=Th,B=0.0000000001,V=V)
 
-    print("4. Post-processing")
+# load_file=f"mag_vec_fem/data/merc5avril2023/u_h{int(1/h)}{namepot}NV{NV}NB{NB}.npz"
 
-    #in the data name B reps the shift through E_s=hbar*q_e*B/(2*m_e)
-    namedata='l'+str(lnm)+'B'+str(B)+'V'+str(V_max)+'h'+str(int(1/h))+'v'+str(pot_version)
-    np.savez_compressed(os.path.realpath(os.path.join(res_path,'landscapes',namedata)),q=Th.q,u=x)
-    """
+u = np.abs(np.load(load_file, allow_pickle=True)["u"])
+# np.load(res_path + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
+print("size of u", np.shape(u))
 
-    namedata = namepot + "NV" + str(NV) + "NB" + str(NB) + ".npz"
-    u = np.load(load_file, allow_pickle=True)["u"]
-    #np.load(res_path + "/landscapes/h200" + namedata, allow_pickle=True)["u"]
-    print("size of u", np.shape(u))
+print("5.   Plot")
+epsilon = 10**-20
 
-    print("5.   Plot")
-    epsilon=10**-20
-    E_0 = NB**2 / 2
-    w=np.reciprocal(np.maximum(np.real(u), epsilon))-E_0
-    wmin, wmax = colorscale(w, "hypercube")
 
-    plt.figure(NB)
+if plot_u:
+    umin, umax = colorscale(u, "hypercube")
+    save_name = os.path.realpath(os.path.join(dir_to_save, name_u))
+    plt.figure()
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    PlotVal(Th, w ,vmin=wmin,vmax=wmax)
-    plt.title(r"Effective potential with shift $N_B=%d$ minus $E_0$" % (NB))
-    t = "w_E0" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
-    # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
-    plt.show()
+    PlotVal(Th, u, vmin=umin, vmax=umax)
+    plt.title(f"Landscape function with shift $S={beta}$")
+    plt.savefig(f"{save_name}.png")
     plt.clf()
     plt.close()
 
-    """plt.figure(NB + 1)
+if plot_w:
+    w = np.reciprocal(np.maximum(np.real(u), epsilon)) - beta
+    wmin, wmax = colorscale(w, "hypercube")
+    save_name = os.path.realpath(os.path.join(dir_to_save, name_w))
+    plt.figure()
     plt.clf()
     PlotBounds(Th, legend=False, color="k")
     plt.axis("off")
-    vmin, vmax = colorscale(u.real, "hypercube")
-    PlotVal(Th, u.real, vmin=vmin, vmax=vmax)
-    # matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
-    plt.title(r"Shifted landscape $N_B=%d$" % (NB))
-    t = "u_" + namepot + "NB" + str(NB) + "NV" + str(NV) + "h" + str(int(1 / h))
-    # plt.savefig(os.path.realpath(os.path.join(res_path, t)))
-    plt.show()
+    PlotVal(Th, w, vmin=wmin, vmax=wmax)
+    plt.title(f"Effective potential minus the shift $S={beta}$")
+    plt.savefig(f"{save_name}.png")
     plt.clf()
-    plt.close()"""
-
-
-""" 
-plt.figure(NB+1)
-plt.clf()
-PlotBounds(Th,legend=False,color='k')
-plt.axis('off')
-PlotVal(Th,(u[2]-u[1]).real)
-plt.title(r'u10-u5')
-t='deltau_'+namepot+'NB'+str(NB)+'NV'+str(NV)+'h'+str(int(1/h))
-#plt.clf()"""
-
-"""plt.figure(3)
-plt.clf()
-PlotBounds(Th,legend=False,color='k')
-plt.axis('off')
-PlotVal(Th,np.abs(x))
-plt.title(r'u0 l=$lnm=%d$'%(lnm))
-plt.show()
-plt.close()"""
+    plt.close()
