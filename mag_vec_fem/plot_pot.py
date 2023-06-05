@@ -29,7 +29,9 @@ for v in (0,):
     mean = np.mean(V)
     V = V / mean
     plt.close()
-    PlotIsolines(Th, V, fill=True, colorbar=True)
+    PlotBounds(Th, legend=False, color="k")
+    plt.axis("off")
+    PlotVal(Th, V, vmin=0)
     # plt.imshow(V,cmap='turbo')
     plt.show()
     plt.clf()

@@ -2,3 +2,9 @@ cd Documents/Thèse\ loc\ EHQ/python/gauge-invariant-fem
 
 watershed landscape
 python3 mag_vec_fem/watershed_landscape.py load_file=mag_vec_fem/data/20230522_charon/u_Na400x15sig22v0L200eta1e-1beta2e-1h1000.npz E_barr=0.2 which_cond="shifted_cond" coeff=1.25 beta=0.2
+
+plots of log
+python3 mag_vec_fem/plotsfromdata.py load_file=mag_vec_fem/data/20230522_charon/Na400x15sig22v0eta1e-1beta2e-1Symtarget0h1000Neig10.npz dir_to_save=mag_vec_fem/data/20230522_charon/plots name_eig=Na400x15sig22v0eta1e-1beta2e-1Symtarget0h1000Neig10.npz log_modulus=True modulus=False
+
+one computation in terminal
+python3 mag_vec_fem/data_one_computation.py beta=0.2  eta=0.1 N_eig=50 dir_to_save=mag_vec_fem/data/1062023 h=1/1000 gauge=Sym target_energy=0.4         

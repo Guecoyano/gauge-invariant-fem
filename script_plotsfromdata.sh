@@ -4,10 +4,10 @@ DIR="mag_vec_fem/data/20230522_charon"
 DIR_TO_SAVE=${DIR}/plots
 mkdir DIR_TO_SAVE
 ETA="1e-1"
-BETALIST="5e-1"
+BETALIST="1e-1 2e-1 5e-2 1e-2"
 #TARGET_LIST="0 "
 #BETALIST="0 1e-2 2e-2 5e-2 1e-1 2e-1 5e-1 1 2"
-TARGET_LIST="0 80 100 150"
+TARGET_LIST="0 80 100"
 for beta in $BETALIST
 do
   NAME_U=u_Na400x15sig22v0L200eta${ETA}beta${beta}h1000

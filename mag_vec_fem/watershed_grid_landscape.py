@@ -21,7 +21,7 @@ M = wsm.find_minima(ugrid)
 wsm.store_watershed_transform(M, ugrid)
 
 threshold = 0.1
-# This is rhe threshold beyond which 2 points are considered
+# This is the threshold beyond which 2 points are considered
 # not likely to be negihbors on a noramlized domain of size 1.
 # This may need to be adjusted based on the potential.
 # If no value if provided, it is 0.5 by default, but this will take long to execute.

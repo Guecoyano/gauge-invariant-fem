@@ -20,12 +20,18 @@ params = [
     ("load_file", True, None),
     ("dir_to_save", True, None),
     ("name_eig", True, None),
+    ("modulus",False, True),
+    ("phase",False, False),
+    ("log_modulus",False, False),
+    ("log10",False, False),
+
 ]
 h = (
     gauge
 ) = (
     N_eig
-) = N_a = x = sigma = v = NB = NV = namepot = load_file = dir_to_save = name_eig = None
+) =log10= N_a = x = sigma = v = NB = NV = log_modulus= None
+modulus=phase=namepot = load_file = dir_to_save = name_eig = None
 print(sys.argv)
 
 for param, is_string, default in params:
@@ -47,4 +53,4 @@ with open(
     Th = pickle.load(f)
 
 dat_file = np.load(load_file, allow_pickle=True)
-saveplots_fromdata(Th, dat_file, name_eig, dir_to_save=dir_to_save, phase=True)
+saveplots_fromdata(Th, dat_file, name_eig, dir_to_save=dir_to_save, modulus=modulus, phase=phase, log_modulus=log_modulus, log10=log10)

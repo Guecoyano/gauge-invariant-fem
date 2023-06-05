@@ -17,22 +17,23 @@ params = [
     ("h", False, 0.001),
     ("L", False, 200),
     ("N_a", False, 400),
+    ("N_eig", False, 10),
     ("x", False, 0.15),
     ("sigma", False, 2.2),
     ("v", False, 0),
-    ("beta", False, 0),
-    ("eta", False, 0),
-    ("plot_diff",False,False),
-    ("plot_w",False,True),
+    ("beta", False, 5e-2),
+    ("eta", False, 2e-1),
+    ("gauge", True, "Sym"),
     ("namepot", True, None),
-    ("load_file", True, None),
+    ("file_u", True, None),
+    ("file_eig", True, None),
     ("dir_to_save", True, None),
-    ("name_w", True, None),
+    ("name_ws", True, None),
     ("E_barr", False, None),
     ("coeff", False, 0),
     ("which_cond", True, "energy_limit"),#"standard_cond", "shifted_cond"
 ]
-h=L=gauge=N_eig=N_a=x=sigma=v=beta=eta=namepot=load_file=None
+h=L=gauge=N_eig=N_a=x=sigma=v=beta=eta=namepot=file_u=file_eig=None
 plot_diff=plot_w=name_u=dir_to_save=name_w=which_cond=E_barr=coeff=None
 print(sys.argv)
 
@@ -48,20 +49,33 @@ if namepot is None:
 if dir_to_save is None:
     dir_to_save = os.path.join(data_path, "eigenplots")
 if name_u is None:
-    name_u=(f"u_{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}"
+    name_u=(f"u_{namepot}eta{eta}beta{beta}h{int(1/h)}"
     )
 if name_w is None:
-    name_w=(f"w_{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}"
+    name_w=(f"w_{namepot}eta{eta}beta{beta}h{int(1/h)}"
     )
 if E_barr is None:
     E_barr=beta+coeff*eta
 
 
-eta_str,beta_str="2e-1","5e-2"
+target="0"
+num=0
+eta_str,beta_str="1e-3","0"
+eta=eval(eta_str)
+beta=eval(beta_str)
+E_barr=0#eval(beta_str)-eval(eta_str)
+coeff=1.
+#name_base=f"{namepot}eta{eta_str}beta{beta_str}"
+name_eig=f"{namepot}eta{eta_str}beta{beta_str}{gauge}target{target}h{int(1/h)}Neig{N_eig}"
 name_u=f"u_{namepot}L{L}eta{eta_str}beta{beta_str}h{int(1/h)}"
-subdiru="20230602-02"
+subdiru="20230601"
+subdireig="20230601"
 diru=f"{data_path}/{subdiru}"
-load_file=f"{diru}/{name_u}.npz"
+direig=f"{data_path}/{subdireig}"
+file_u=f"{diru}/{name_u}.npz"
+file_eig=f"{direig}/{name_eig}.npz"
+DIR=f"{direig}"
+dir_to_save=f"{DIR}/plots"
 
 print("load mesh")
 with open(
@@ -74,13 +88,14 @@ with open(
 
 print("load u")
 epsilon = 10**-20
-u = np.real(epsilon+np.load(load_file, allow_pickle=True)["u"])
+u = np.real(epsilon+np.load(file_u, allow_pickle=True)["u"])
+psi = np.log10(epsilon+np.abs(np.load(file_eig, allow_pickle=True)["eig_vec"][:,num]))
+
 if len(u) != Th.nq:
     print("u does not have th.nq values")
     exit()
 
 w=1/u
-wmin,wmax=colorscale(w,"hypercube")
 
 print("vertex structuration")
 vertex_w = ws.vertices_data_from_mesh(Th, values=w)
@@ -119,6 +134,8 @@ for r in merged.regions:
 
 print("final number of regions:", final_min)
 
+wmin_cs,wmax_cs=colorscale(w,"hypercube")
+
 print("Plotting boundaries over effective potential")
 x = []
 y = []
@@ -127,25 +144,31 @@ for n in range(Th.nq):
     if len(merged.global_boundary[n]) >= 2:
         x.append(Th.q[n, 0])
         y.append(Th.q[n, 1])
-        z.append(min(w[n],wmax))
+        z.append(min(w[n],wmax_cs)-wmin_cs)
         
 z=np.array(z)
-zmin,zmax=np.min(z),np.max(z)
-print(zmin,zmax)
+zmin,zmax=0,0.002
+print(wmax_cs-wmin_cs)
 plt.figure()
 plt.clf()
-wmin, wmax = colorscale(w, "hypercube")
+wmin, wmax = -20,1
 #PlotVal(Th, 1 / u, vmin=vmin, vmax=vmax)
 
-diff_w=np.abs(E_barr-w)
-diff_min,diff_max=colorscale(diff_w,"hypercube")
-
-if plot_diff:
-    PlotIsolines(Th, diff_w, fill=True, colorbar=True, vmin=diff_min, vmax=diff_max, color="turbo")
-elif plot_w:
-    PlotIsolines(Th, w, fill=True, colorbar=True, vmin=wmin, vmax=wmax, color="turbo")
+#PlotIsolines(Th, psi, fill=True, colorbar=True, vmin=wmin, vmax=wmax, color="turbo")
+plt.tricontourf(
+    Th.q[:, 0],
+    Th.q[:, 1],
+    Th.me,
+    psi,
+    10,
+    cmap="turbo",
+    vmin=wmin,
+    vmax=wmax,
+    )
+plt.colorbar()
+plt.gca().set_aspect("equal")
 plt.axis("off")
-plt.scatter(x, y, c=z, cmap="Greys", s=(20*(z-E_barr))**2)
+plt.scatter(x, y, c='k',alpha=np.sqrt((z/zmax)),vmin=zmin,vmax=zmax, cmap="Greys", s=(200*(z))**2)
 plt.show()
 plt.clf()
 plt.close()

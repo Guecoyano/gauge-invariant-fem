@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import ticker, colors
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 
@@ -21,7 +22,7 @@ def PlotIsolines(Th, u, **kwargs):
     else:
         d = Th.d
     if d == 2:
-        N = kwargs.get("N", 15)
+        N = kwargs.get("N", 100)
         Fill = kwargs.get("fill", False)
         iso = kwargs.get("iso", None)
         Colorbar = kwargs.get("colorbar", False)
@@ -29,11 +30,21 @@ def PlotIsolines(Th, u, **kwargs):
         options = kwargs.get("options", None)
         vmin = kwargs.get("vmin", None)
         vmax = kwargs.get("vmax", None)
+        logscale=kwargs.get("logscale", False)
         # ColorbarOptions=kwargs.get('ColorbarOptions', {orientation : u'horizontal'} )
+        locator=None
+        shading="gouraud"
         fig = plt.gcf()
         plt.gca().set_aspect("equal")
-        if Fill:
-            # plt.tricontourf(Th.q[:,0],Th.q[:,1],Th.me, u,N,shading='interp')
+        if logscale:
+            locator=ticker.LogLocator(subs=np.linspace(1,9))
+            shading=locator=None
+            plt.tricontourf(Th.q[:,0],Th.q[:,1],Th.me, u,norm=colors.LogNorm(), locator=locator,cmap=color, shading=shading)
+            if Colorbar:
+                plt.colorbar()#ticks = ticker.LogLocator())
+        
+        elif Fill:
+            
             plt.tripcolor(
                 Th.q[:, 0],
                 Th.q[:, 1],
@@ -44,6 +55,9 @@ def PlotIsolines(Th, u, **kwargs):
                 vmin=vmin,
                 vmax=vmax,
             )  # , cmap=plt.cm.rainbow)
+            if Colorbar:
+            # plt.colorbar(orientation=u'horizontal')
+                plt.colorbar()
         else:
             # plt.tricontour(Th.q[:,0],Th.q[:,1],Th.me, u,N,colors=coloriso)
             plt.tricontour(
@@ -56,9 +70,10 @@ def PlotIsolines(Th, u, **kwargs):
                 vmin=vmin,
                 vmax=vmax
             )
-        if Colorbar:
+            if Colorbar:
             # plt.colorbar(orientation=u'horizontal')
-            plt.colorbar()
+                plt.colorbar()
+        
         # plt.show()
 
 

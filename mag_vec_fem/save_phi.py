@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pickle
 
-for h in (0.01, 0.005, 0.001):
+for h in (0.01,):#(0.01, 0.005, 0.001):
     with open(
         os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
         "rb",
@@ -18,39 +18,46 @@ for h in (0.01, 0.005, 0.001):
 
     print("Circulation of symmetric gauge")
     d1 = Th.d + 1
-    pA = np.ones((Th.nme, d1, d1), dtype=complex)
+    pAsym = np.ones((Th.nme, d1, d1), dtype=complex)
+    pALandX=np.copy(pAsym)
     for i in range(d1):
-        for j in range(i, d1):
-            for k in range(Th.nme):
+        for j in range(i):
+            qi, qj = Th.q[Th.me[:, i], :], Th.q[Th.me[:, j], :]
+            dij=np.sqrt((qj[:, 0]-qi[:,0])**2+(qj[:, 1]-qi[:,1])**2)
+            pAsym[:, i, j]=(-(qj[:, 1]+qi[:, 1])*(qj[:, 0]-qi[:,0])+(qj[:, 1]-qi[:, 1])*(qj[:, 0]+qi[:,0]))/(4*dij[:])
+            pAsym[:, j, i] = -pAsym[:, i, j]
+            pALandX[:, i, j]=(-(qj[:, 1]+qi[:, 1])*(qj[:, 0]-qi[:,0]))/(2*dij[:])
+
+            """for k in range(Th.nme):
                 qi, qj = Th.q[Th.me[k, i], :], Th.q[Th.me[k, j], :]
                 x = lambda t: (1 - t) * qi + t * qj
                 A0t = lambda t: np.dot(A_Sym(x(t)[0], x(t)[1]), qj - qi)
                 pA[k, i, j] = integrate.quad(A0t, 0, 1)[0]
-                pA[k, j, i] = -pA[k, i, j]
+                pA[k, j, i] = -pA[k, i, j]"""
 
     with open(
         os.path.realpath(
-            os.path.join(data_path, "logPhi", "Symh" + str(int(1 / h)) + ".pkl")
+            os.path.join(data_path, "logPhi", "simpleSymh" + str(int(1 / h)) + ".pkl")
         ),
         "wb",
     ) as f:
-        pickle.dump(pA, f)
+        pickle.dump(pAsym, f)
 
     print("circulation of Landau X gauge")
     d1 = Th.d + 1
     pA = np.ones((Th.nme, d1, d1), dtype=complex)
-    for i in range(d1):
+    """for i in range(d1):
         for j in range(i, d1):
             for k in range(Th.nme):
                 qi, qj = Th.q[Th.me[k, i], :], Th.q[Th.me[k, j], :]
                 x = lambda t: (1 - t) * qi + t * qj
                 A0t = lambda t: np.dot(A_LandauX(x(t)[0], x(t)[1]), qj - qi)
                 pA[k, i, j] = integrate.quad(A0t, 0, 1)[0]
-                pA[k, j, i] = -pA[k, i, j]
+                pA[k, j, i] = -pA[k, i, j]"""
     with open(
         os.path.realpath(
-            os.path.join(data_path, "logPhi", "LandauXh" + str(int(1 / h)) + ".pkl")
+            os.path.join(data_path, "logPhi", "simpleLandauXh" + str(int(1 / h)) + ".pkl")
         ),
         "wb",
     ) as f:
-        pickle.dump(pA, f)
+        pickle.dump(pALandX, f)

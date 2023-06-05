@@ -22,6 +22,7 @@ params = [
     ("x", False, 0.15),
     ("sigma", False, 2.2),
     ("v", False, 0),
+    ("L", False, 200),
     ("beta", False, 0),
     ("eta", False, 0),
     ("plot_u", False, True),
@@ -32,7 +33,7 @@ params = [
     ("name_u", True, None),
     ("name_w", True, None),
 ]
-h = (
+h =L= (
     gauge
 ) = (
     N_eig
@@ -65,12 +66,25 @@ if name_w is None:
     name_w = f"w_{namepot}eta{eta}beta{beta}{gauge}h{int(1/h)}"
 plt.close("all")
 
+
+"""
+target="0"
+num=0
+eta_str,beta_str="2e-1","2e-1"
+name_u=f"u_{namepot}L{L}eta{eta_str}beta{beta_str}h{int(1/h)}"
+subdiru="20230602-02"
+diru=f"{data_path}/{subdiru}"
+load_file=f"{diru}/{name_u}.npz"
+DIR=f"{diru}"
+dir_to_save=f"{DIR}/plots"
+"""
 print("1. Set square mesh")
 with open(
     os.path.realpath(os.path.join(data_path, "Th", f"h{int(1/h)}.pkl")),
     "rb",
 ) as f:
     Th = pickle.load(f)
+    Th.q=L*Th.q
 
 # load_file=f"mag_vec_fem/data/merc5avril2023/u_h{int(1/h)}{namepot}NV{NV}NB{NB}.npz"
 
