@@ -16,7 +16,7 @@ for h in (0.01, 0.005, 0.001):
         Th = pickle.load(f)
     # mass lumped matrix m^0
     print("assemble $m^0$")
-    Kg = KgP1_OptV3_ml(Th, 1, complex)
+    Kg = Kg_guv_ml(Th, 1, complex)
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
     M = sparse.csc_matrix(
@@ -41,7 +41,7 @@ for h in (0.01, 0.005, 0.001):
     G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
     mu = np.zeros((Th.nme, ndfe, ndfe), dtype)
     for i in range(d):
-        mu += KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
+        mu += Kg_gdudv(Th, 1, G, i, i, dtype)
     with open(
         os.path.realpath(
             os.path.join(data_path, "Th", "muh" + str(int(1 / h)) + ".pkl")

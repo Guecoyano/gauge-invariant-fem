@@ -32,7 +32,7 @@ class L_Aoperator:
     def __init__(cls, **kwargs):
         cls.d = kwargs.get("d", 2)
         cls.m = 1
-        cls.A0 = kwargs.get("A0", 0)
+        cls.A0 = kwargs.get("A0", None)
         cls.name = kwargs.get("name", "No name")
         cls.order = 0
         cls.V = kwargs.get("V", 0)
@@ -52,18 +52,17 @@ class L_Aoperator:
         return "member of Test"
 
 
-def KgP1_OptV3_A(Th, D, G, **kwargs):
+def Kg_total(Th, D, G, **kwargs):
     d = Th.d
     ndfe = d + 1
     dtype = kwargs.get("dtype", complex)
     Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
-    Kg = Kg + KgP1_OptV3_guv(Th, D.V, dtype)
-    G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
-    Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
+    Kg = Kg + Kg_guv_ml(Th, D.V, dtype)
+    Kg = Kg - Kg_kinetic_mag(Th, D, G, dtype)
     return Kg
 
 
-def KgP1_OptV3_ml(Th, g, dtype):
+def Kg_guv_ml(Th, g, dtype):
     gh = FEMtools.setFdata(g, Th, dtype=dtype)
     d = Th.d
     ndfe = d + 1
@@ -79,22 +78,23 @@ def KgP1_OptV3_A_ml(Th, D, G, **kwargs):
     ndfe = d + 1
     dtype = kwargs.get("dtype", complex)
     Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
-    Kg = Kg + KgP1_OptV3_ml(Th, D.V, dtype)
+    Kg = Kg + Kg_guv_ml(Th, D.V, dtype)
     G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
-    Kg = Kg - KgP1_OptV3_A_A(Th, D, G, dtype)
+    Kg = Kg - Kg_kinetic_mag(Th, D, G, dtype)
     return Kg
 
 
-def KgP1_OptV3_A_A(Th, D, G, dtype):
+def Kg_kinetic_mag(Th, D, G, dtype):
     d = Th.d
     ndfe = d + 1
     mu = np.zeros((Th.nme, ndfe, ndfe), dtype)
     Kg_A = np.zeros((Th.nme, ndfe, ndfe), dtype)
     for i in range(d):
-        mu += KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
-    if D.A0 == None:
+        mu += Kg_gdudv(Th, 1, G, i, i, dtype)
+    if D.A0 is None:
         return mu
-    phi_A = phi(D.A0, Th)
+    logPhi_A = circultion_A(D.A0, Th)
+    phi_A = np.exp(logPhi_A * 1j)
     for i in range(d + 1):
         for j in range(i):
             Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
@@ -118,6 +118,39 @@ def phi(A0, Th):
             pA[:, j, i] = np.conjugate(pA[:, i, j])
     return pA
 
+def circultion_A(A,Th): #takes Ax and Ay as arrays of size Th.nq and returns an array of circulation of A along edges of Th of size (Th.nme,Th.d+1,Th.d+1)
+    A_x,A_y=A[0],A[1]
+    A_xme=A_x[Th.me]
+    A_yme=A_y[Th.me]
+    qme=Th.q[Th.me]
+    computed_circ=np.zeros((Th.nme,Th.d+1,Th.d+1))
+    for i in range(Th.d+1):
+        for j in range(i):
+            computed_circ[:,i,j]=(qme[:,j,0]-qme[:,i,0])*(A_xme[:,i]+A_xme[:,j])/2+(qme[:,j,1]-qme[:,i,1])*(A_yme[:,i]+A_yme[:,j])/2
+            computed_circ[:,j,i]=-computed_circ[:,i,j]
+    return computed_circ
+
+def AxAySym(L,N):#returns A_xsym and A_ysym for hypercube mesh of size LxL and NxN points (N=1/h)
+    x=np.linspace(-L/2,L/2,N)
+    y=np.linspace(-L/2,L/2,N)
+    #in Th.q x changes fastest so to cast Ay to Th.nq shape, we have to reshape.
+    A_x=np.repeat(-y/2,N)
+    A_y=np.ravel(np.reshape(np.repeat(x/2,N),(N,N)),'F')
+    return np.array([A_x,A_y])
+
+def AxAyLandauX(L,N):#returns A_xsym and A_ysym for hypercube mesh of size LxL and NxN points (N=1/h)
+    y=np.linspace(-L/2,L/2,N)
+    #in Th.q x changes fastest so to cast Ay to Th.nq shape, we have to reshape.
+    A_x=np.repeat(-y,N)
+    A_y=np.zeros(N*N)
+    return (A_x,A_y)
+
+def AxAyLandauY(L,N):#returns A_xsym and A_ysym for hypercube mesh of size LxL and NxN points (N=1/h)
+    x=np.linspace(-L/2,L/2,N)
+    #in Th.q x changes fastest so to cast Ay to Th.nq shape, we have to reshape.
+    A_x=np.zeros(N*N)
+    A_y=np.ravel(np.reshape(np.repeat(x/2,N),(N,N)),'F')
+    return (A_x,A_y)
 
 def A_LandauX(x, y):
     A = np.array([-y, 0])
@@ -154,7 +187,7 @@ class magPDE:
 
 def magAssemblyP1(Th, D, G=None, **kwargs):
     dtype = kwargs.get("dtype", complex)
-    Kg = KgP1_OptV3_A(Th, D, G, dtype=dtype)
+    Kg = Kg_total(Th, D, G, dtype=dtype)
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     N = Th.nme * (Th.d + 1) ** 2
     A = sparse.csc_matrix(
@@ -241,11 +274,15 @@ def solveMagPDE(pde, **kwargs):
 
 
 def init_magpde(h, B, l, gauge, V, Th=None):
-    A0 = lambda x, y: B * (globals()["A_" + gauge](x, y))
-    if Th == None:
+
+    if Th is None:
         T = mesh.HyperCube(2, int(l / h), l=l)
     else:
         T = Th
+    L=-2*Th.q[0,0]
+    N=int(np.sqrt(Th.nq))
+    #A0 = lambda x, y: B * (globals()["A_" + gauge](x, y))
+    A0 = B*globals()[f"AxAy{gauge}"](L,N)
     Op = L_Aoperator(A0=A0, V=V)
     magpde = magPDE(Op, T, f=1)
     magpde = setBC_PDE(magpde, 1, 0, "Dirichlet", 0, None)
@@ -253,6 +290,7 @@ def init_magpde(h, B, l, gauge, V, Th=None):
     magpde = setBC_PDE(magpde, 3, 0, "Dirichlet", 0, None)
     magpde = setBC_PDE(magpde, 4, 0, "Dirichlet", 0, None)
     return magpde
+
 
 
 def getSol(**kwargs):
@@ -298,7 +336,7 @@ def get_eigvv(**kwargs):
             dtype=magpde.dtype,
             version=AssemblyVersion,
         )
-        Kg = KgP1_OptV3_ml(Th, 1, complex)
+        Kg = Kg_guv_ml(Th, 1, complex)
     else:
         A_0 = magAssemblyP1(
             magpde.Th,
@@ -307,7 +345,7 @@ def get_eigvv(**kwargs):
             dtype=magpde.dtype,
             version=AssemblyVersion,
         )
-        Kg = KgP1_OptV3_guv(Th, 1, complex)
+        Kg = KgP1_OptV3(Th, 1, complex)
 
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
@@ -369,7 +407,7 @@ def get_eigvv_ml(**kwargs):
         version=AssemblyVersion,
     )
 
-    Kg = KgP1_OptV3_ml(Th, 1, complex)
+    Kg = Kg_guv_ml(Th, 1, complex)
     Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     NN = Th.nme * (Th.d + 1) ** 2
     M = sparse.csc_matrix(

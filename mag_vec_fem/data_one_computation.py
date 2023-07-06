@@ -4,23 +4,24 @@
 from fem_base.exploit_fun import *
 import pickle
 from fem_base.gaugeInvariantFEM import *
+import sys
 
 res_path = data_path
 path = os.path.realpath(os.path.join(res_path, "film_poles"))
-
+t0=time.time()
 # parameters of the file in the form of tuples: (name of parameter, is it a string, default value)
 params = [
     ("eig", False, True),
     ("u", False, False),
     ("h", False, 0.01),
     ("gauge", True, "Sym"),
-    ("N_eig", False, 10),
+    ("N_eig", False, 12),
     ("N_a", False, 400),
     ("x", False, 0.15),
     ("sigma", False, 2.2),
     ("v", False, 0),
     ("L", False, 200),
-    ("beta", False, 0.2),
+    ("beta", False, 0.25),
     ("eta", False, 0.1),
     ("namepot", True, None),
     ("target_energy", False, None),
@@ -65,7 +66,7 @@ if name_eig is None:
 if name_u is None:
     name_u = f"u_h{int(1 / h)}{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}"
 
-print("Creating mesh")
+print("Creating mesh",time.time()-t0)
 with open(
     os.path.realpath(os.path.join(data_path, "Th", "h" + str(int(1 / h)) + ".pkl")),
     "rb",
@@ -74,17 +75,16 @@ with open(
     Th.q = L * Th.q
     Th.vols = (L**2) * Th.vols
 
-print("Mesh done")
+print("Mesh done",time.time()-t0)
 # Th=None
 V_unscaled, Th = vth_data(h, namepot, L=L, Th=Th, N_a=N_a)
 V1 = (1 / np.mean(V_unscaled)) * V_unscaled
 print(np.mean(V1))
-ones = np.ones(Th.nq)
 
 
 # getsaveeig
 
-
+ttest=time.time()
 meshfile = None
 N = 1
 magpde = init_magpde(h, 1, L, gauge, V1, Th)
@@ -96,8 +96,8 @@ Tcpu = np.zeros((4,))
 tstart = time.time()
 
 # mass lumped matrix m^0
-print("assemble $m^0$")
-Kg = KgP1_OptV3_ml(Th, 1, complex)
+print("assemble $m^0$",time.time()-t0)
+Kg = Kg_guv_ml(Th, 1, complex)
 Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
 NN = Th.nme * (Th.d + 1) ** 2
 M = sparse.csc_matrix(
@@ -109,44 +109,49 @@ M.eliminate_zeros()
 dtype = complex
 
 # mass lumped matrix m^1
-print("assemble m^1")
+print("assemble m^1",time.time()-t0)
 d = Th.d
 ndfe = d + 1
 G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
 mu = np.zeros((Th.nme, ndfe, ndfe), dtype)
 for i in range(d):
-    mu += KgP1_OptV3_gdudv(Th, 1, G, i, i, dtype)
+    mu += Kg_gdudv(Th, 1, G, i, i, dtype)
+    
 # compute normalized V term
-print("assemble normalized V term")
+print("assemble normalized V term",time.time()-t0)
 Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
-Kg_V = KgP1_OptV3_ml(Th, (magpde.op).V, dtype)
+Kg_V = Kg_guv_ml(Th, (magpde.op).V, dtype)
 
 
 # boundaries
-print("assemble boundaries")
-Tcpu[0] = time.time() - tstart
+print("assemble boundaries",time.time()-t0)
 ndof = Th.nq
-tstart = time.time()
-Tcpu[1] = time.time() - tstart
 tstart = time.time()
 # bN=NeumannBC(pde,AssemblyVersion,Num);
 # [AR, bR] = RobinBC(magpde, AssemblyVersion, Num)
 [ID, IDc, gD] = DirichletBC(magpde, Num)
 
-
+print("Boundaries done",time.time()-t0)
 # operators for landscape
-Kg_delta = np.zeros((Th.nme, ndfe, ndfe), dtype)
-for i in range(d):
-    Kg_delta = Kg_delta + KgP1_OptV3_gdudv(Th, ones, G, i, i, dtype)
-Kg_uV = KgP1_OptV3_guv(Th, V1, dtype)
-Kg_u1 = KgP1_OptV3_guv(Th, ones, dtype)
+ones=np.ones(Th.nq)
+if u:
+    Kg_delta = np.zeros((Th.nme, ndfe, ndfe), dtype)
+    for i in range(d):
+        Kg_delta = Kg_delta + Kg_gdudv(Th, ones, G, i, i, dtype)
+    Kg_uV = KgP1_OptV3(Th, V1, dtype)
+    Kg_u1 = KgP1_OptV3(Th, ones, dtype)
 
-# RHS for landscapes
-b = RHS(magpde.Th, magpde.f, Num, dtype=magpde.dtype, version=AssemblyVersion)
+    """# operators for landscape
+    D=magpde.op
+    D.A0=None
+    Kg_delta = Kg_kinetic_mag(Th,D,G,float)"""
+
+    # RHS for landscapes
+    b = RHS(Th, ones, 1, dtype=dtype, version="OptV3")
 
 if eig:
     # circulationn of the normalized vector poltential
-    print("normalized circulation of A")
+    print("normalized circulation of A",time.time()-t0)
     # phi_A = phi((magpde.op).A0, Th)
     with open(
         os.path.realpath(
@@ -163,7 +168,7 @@ if eig:
             Kg_A[:, i, i] = Kg_A[:, i, i] + mu[:, i, j]
             Kg_A[:, j, j] = Kg_A[:, j, j] + mu[:, i, j]
 
-    print("computing eigenproblem")
+    print("computing eigenproblem",time.time()-t0)
     print(
         "h=",
         h,
@@ -196,17 +201,15 @@ if eig:
     tstart = time.time()
     xx = np.repeat(gD[ID], N_eig, axis=0)
     x_sol[ID, :] = np.reshape(xx, (len(ID), -1))
-    print("solving...")
+    print("solving...",time.time()-t0)
     w, x_sol[IDc, :] = eigsh(
         (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which="LM"
     )
     Tcpu[3] = time.time() - tstart
 
-    print("times:", Tcpu)
+    #print("times:", Tcpu)
 
-    print("Ordering eigendata")
-    tstart = time.time()
-
+    print("Ordering eigendata",time.time()-t0)
     # ordering eigenstates:
     wtype = [("energy", float), ("rank", int)]
     w_ = [(w[i], i) for i in range(N_eig)]
@@ -217,10 +220,9 @@ if eig:
     x_ = np.copy(x_sol)
     for i in range(N_eig):
         x_sol[:, i] = x_[:, I[i]]
-    t_order = time.time() - tstart
-    print("ordering time:", t_order)
-    tstart = time.time()
+    print("ordering done:",time.time()-t0)
 
+'''
     print("Post-processing")
     # save in one compressed numpy file: V in nq array, th.q , w ordered in N_eig array, x ordered in nq*N_eig array
 
@@ -261,3 +263,5 @@ if u:
         q=Th.q,
         u=x_sol,
     )
+'''
+print(w)

@@ -64,14 +64,14 @@ def KgP1_OptV3(Th, D, G, **kwargs):
     ndfe = d + 1
     dtype = kwargs.get("dtype", float)
     Kg = np.zeros((Th.nme, ndfe, ndfe), dtype)
-    Kg = Kg + KgP1_OptV3_guv(Th, D.a0, dtype)
+    Kg = Kg + KgP1_OptV3(Th, D.a0, dtype)
     if D.order == 0:
         return Kg
     G = FEMtools.ComputeGradientVec(Th.q, Th.me, Th.vols)
     if D.A != None:
         for i in range(d):
             for j in range(d):
-                Kg = Kg + KgP1_OptV3_gdudv(Th, D.A[i][j], G, j, i, dtype)
+                Kg = Kg + Kg_gdudv(Th, D.A[i][j], G, j, i, dtype)
     if D.b != None:
         for i in range(d):
             Kg = Kg - KgP1_OptV3_gudv(Th, D.b[i], G, i, dtype)
@@ -81,7 +81,7 @@ def KgP1_OptV3(Th, D, G, **kwargs):
     return Kg
 
 
-def KgP1_OptV3_guv(Th, g, dtype):
+def KgP1_OptV3(Th, g, dtype):
     if not (isinstance(g, np.ndarray) and (g.shape[0] == Th.nq)) and g == None:
         return 0
     gh = FEMtools.setFdata(g, Th, dtype=dtype)
@@ -102,7 +102,7 @@ def KgP1_OptV3_guv(Th, g, dtype):
     return Kg
 
 
-def KgP1_OptV3_gdudv(Th, g, G, i, j, dtype):
+def Kg_gdudv(Th, g, G, i, j, dtype):
     if g is None:
         return 0
     gh = FEMtools.setFdata(g, Th, dtype=dtype)
