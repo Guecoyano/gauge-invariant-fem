@@ -71,7 +71,7 @@ if serial_solve:
     target_energy=pr[-1,1]#*1.0000001
     which="LA"
 else:
-    pr=np.array([])
+    pr=np.array([[]])
 
 print("Creating mesh, time is:", time.time()-t0)
 with open(
@@ -189,12 +189,17 @@ for i in range(N_eig):
 print("compute pr's, time is:", time.time()-t0)
 #compute and store PR's
 for i,energy in enumerate(w):
+    new_pr=[]
     m0=np.sum(M,0)
     vec2=x_sol[:,i]*np.conj(x_sol[:,i])
     psi4=np.sum(np.dot(m0,vec2**2))
     psi2=np.sum(np.dot(m0,vec2))
     pr_elem = (psi2**2/psi4).real
-    pr=np.append(pr,np.array([[pr_elem,energy.real]]),axis=0)
+    new_pr.append([pr_elem,energy.real])
+if serial_solve:
+    pr=np.append(pr,np.array(new_pr),axis=0)
+else:
+    pr=np.array(new_pr)
 pr.tofile(f"{dir_to_save}/{name_pr}_readable",sep=" ")
 pr.tofile(f"{dir_to_save}/{name_pr}")
 print("ending at ", time.time()-t0)

@@ -22,6 +22,7 @@ NCYCLES=12
 NBATCH=10
 ETA="2e-1"
 BETA="2e-1"
+H="1e-3"
 NAME_PR="PR_eta${ETA}beta${BETA}"
 
 echo "Job started on `date`"
@@ -29,7 +30,7 @@ echo "-=-"
 cat IPR_serialsolve.slurm
 
 module load python-anaconda3-2019
-python mag_vec_fem/IPR_script.py N_eig=$NBATCH serial_solve=False
+python mag_vec_fem/IPR_script.py h=$H N_eig=$NBATCH serial_solve=False
 for foo in $(seq 2 $NCYCLES)
 do
-    python mag_vec_fem/IPR_script.py N_eig=$NBATCH serial_solve=True h=1e-3 eta=$ETA beta=$BETA dir_to_save=$DIR_TO_SAVE name_pr=$NAME_PR
+    python mag_vec_fem/IPR_script.py h=$H N_eig=$NBATCH serial_solve=True h=1e-3 eta=$ETA beta=$BETA dir_to_save=$DIR_TO_SAVE name_pr=$NAME_PR
