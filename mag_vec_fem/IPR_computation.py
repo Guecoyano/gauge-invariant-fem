@@ -5,7 +5,7 @@ import numpy as np
 from fem_base.gaugeInvariantFEM import *
 
 def create_m0(Th, IgJg=None):
-    Kg = Kg_guv_ml(Th, 1, complex)
+    Kg = Kg_guv_ml(Th, 1, float)
     if IgJg is None:
         Ig, Jg = IgJgP1_OptV3(Th.d, Th.nme, Th.me)
     else:

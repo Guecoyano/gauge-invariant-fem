@@ -26,7 +26,10 @@ params = [
     ("eta", False, 0.1),
     ("namepot", True, None),
     ("target_energy", False, None),
+    ("serial_solve", False, False),
     ("dir_to_save", True, None),
+    ("name_pr", True, None),
+    ("which", True, "LM"),
 ]
 (
     h
@@ -42,7 +45,7 @@ params = [
     sigma
 ) = (
     v
-) = L = eta = beta = namepot = target_energy = dir_to_save = None
+) = serial_solve = L = which = name_pr = eta = beta = namepot = target_energy = dir_to_save = None
 
 print(sys.argv)
 
@@ -60,6 +63,15 @@ if dir_to_save is None:
     dir_to_save = data_path
 if N_eig is None:
     N_eig = int(L**2*beta/(2*np.pi))# trying to get the whole first Landau level.
+if name_pr is None:
+    name_pr="pr{N_eig}eta1e-1beta2e-1"
+if serial_solve:
+    pr=np.fromfile(f"{dir_to_save}/{name_pr}")
+    pr=pr.reshape((-1,2))
+    target_energy=pr[-1,1]#*1.0000001
+    which="LA"
+else:
+    pr=np.array([])
 
 print("Creating mesh, time is:", time.time()-t0)
 with open(
@@ -157,7 +169,7 @@ xx = np.repeat(gD[ID], N_eig, axis=0)
 x_sol[ID, :] = np.reshape(xx, (len(ID), -1))
 print("solving..., time is:", time.time()-t0)
 w, x_sol[IDc, :] = eigsh(
-    (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which="LM"
+    (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which=which
 )
 print(f"assemble and solve time for h={h}:",time.time()-time1)
 
@@ -174,17 +186,16 @@ x_ = np.copy(x_sol)
 for i in range(N_eig):
     x_sol[:, i] = x_[:, I[i]]
 
-"""print("compute pr's, time is:", time.time()-t0)
+print("compute pr's, time is:", time.time()-t0)
 #compute and store PR's
-pr=[]
 for i,energy in enumerate(w):
     m0=np.sum(M,0)
     vec2=x_sol[:,i]*np.conj(x_sol[:,i])
     psi4=np.sum(np.dot(m0,vec2**2))
     psi2=np.sum(np.dot(m0,vec2))
-    pr_elem = psi2**2/psi4
-    pr.append((pr_elem,energy))
-pr.tofile(f"{dir_to_save}/pr{N_eig}eta1e-1beta2e-1_readable",sep=" ")
-pr.tofile(f"{dir_to_save}/pr{N_eig}eta1e-1beta2e-1")
-print("ending at ", time.time()-t0)"""
-print(w)
+    pr_elem = (psi2**2/psi4).real
+    pr=np.append(pr,np.array([[pr_elem,energy.real]]),axis=0)
+pr.tofile(f"{dir_to_save}/{name_pr}_readable",sep=" ")
+pr.tofile(f"{dir_to_save}/{name_pr}")
+print("ending at ", time.time()-t0)
+print(pr)
