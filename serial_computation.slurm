@@ -6,6 +6,10 @@
 #SBATCH -e outputlogs/mylog.%J.err		# standard error
 #SBATCH --nodes=1
 
+echo "Job started on `date`"
+echo "-=-"
+cat serial_computation.slurm
+module load python-anaconda3-2019
 
 today=$( date +%Y%m%d )   # or: printf -v today '%(%Y%m%d)T' -1
 number=0
@@ -18,20 +22,21 @@ while [ -e "$DIR" ]; do
 done
 mkdir "$DIR"
 DIR_TO_SAVE=${DIR}
-NCYCLES=12
 NBATCH=10
 ETA="2e-1"
 BETA="2e-1"
+NCYCLES=12
 H="1e-3"
-NAME_PR="PR_eta${ETA}beta${BETA}"
+V="Na400x15sig22v0"
+NAME_EIG="${V}Symh1000eta${ETA}beta${BETA}"
 
-echo "Job started on `date`"
-echo "-=-"
-cat IPR_serialsolve.slurm
-
-module load python-anaconda3-2019
-python mag_vec_fem/IPR_script.py h=$H N_eig=$NBATCH serial_solve=False dir_to_save=$DIR_TO_SAVE name_pr=$NAME_PR
+python mag_vec_fem/data_one_computation.py h=$H N_eig=$NBATCH serial_solve=False dir_to_save=$DIR_TO_SAVE name_eig="${NAME_EIG}part1" eta=$ETA beta=$BETA
 for foo in $(seq 2 $NCYCLES)
 do
-    python mag_vec_fem/IPR_script.py h=$H N_eig=$NBATCH serial_solve=True h=1e-3 eta=$ETA beta=$BETA dir_to_save=$DIR_TO_SAVE name_pr=$NAME_PR
+    NAME_EIG="Na400x15sig22${V}Symh1000eta${ETA}beta${BETA}"
+    python mag_vec_fem/data_one_computation.py h=$H N_eig=$NBATCH serial_solve=True eta=$ETA beta=$BETA dir_to_save=$DIR_TO_SAVE name_eig=$NAME_EIG part=$foo
 done
+
+echo "-=-"
+echo "Job ended on `date`"
+
