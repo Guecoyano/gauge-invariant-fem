@@ -26,6 +26,8 @@ params = [
     ("namepot", True, None),
     ("target_energy", False, None),
     ("dir_to_save", True, None),
+    ("serial_solve", False, False),
+    ("part", False,None)
     ("name_eig", True, None),
     ("name_u", True, None),
 ]
@@ -45,7 +47,7 @@ eig = (
     sigma
 ) = (
     v
-) = L = eta = beta = namepot = target_energy = dir_to_save = name_eig = name_u = None
+) =serial_solve=part= L = eta = beta = namepot = target_energy = dir_to_save = name_eig = name_u = None
 
 print(sys.argv)
 
@@ -63,8 +65,17 @@ if dir_to_save is None:
     dir_to_save = res_path
 if name_eig is None:
     name_eig = f"{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}{gauge}h{int(1 / h)}Neig{N_eig}"
+if part is not None:
+    name_eig_1=f"{name_eig}part{part-1}"
+    name_eig=f"{name_eig}part{part}"
 if name_u is None:
     name_u = f"u_h{int(1 / h)}{namepot}L{int(L)}eta{int(100*eta)}beta{int(100*beta)}"
+if serial_solve:
+    w_stored=np.load(f"{dir_to_save}/{name_eig_1}.npz")["eig_val"]
+    target_energy=w_stored[-1]*1.0000001
+    which="LA"
+else:
+    pr=np.array([[]])
 
 print("Creating mesh",time.time()-t0)
 with open(
@@ -222,7 +233,7 @@ if eig:
         x_sol[:, i] = x_[:, I[i]]
     print("ordering done:",time.time()-t0)
 
-'''
+
     print("Post-processing")
     # save in one compressed numpy file: V in nq array, th.q , w ordered in N_eig array, x ordered in nq*N_eig array
 
@@ -263,5 +274,5 @@ if u:
         q=Th.q,
         u=x_sol,
     )
-'''
+
 print(w)
