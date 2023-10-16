@@ -16,7 +16,6 @@ t0=time.time()
 params = [
     ("h", False, 0.001),
     ("gauge", True, "Sym"),
-    ("N_eig", False, 12),
     ("N_a", False, 400),
     ("x", False, 0.15),
     ("sigma", False, 2.2),
@@ -25,18 +24,15 @@ params = [
     ("beta", False, 0.1),
     ("eta", False, 0.1),
     ("namepot", True, None),
-    ("target_energy", False, None),
-    ("serial_solve", False, False),
     ("dir_to_save", True, None),
-    ("name_pr", True, None),
-    ("which", True, "LM"),
+    ("name_file_psi", True, None),
+    ("name_file_u", True, None),
+    ("name_hist", True, None),
 ]
 (
     h
 ) = (
     gauge
-) = (
-    N_eig
 ) = (
     N_a
 ) = (
@@ -45,7 +41,7 @@ params = [
     sigma
 ) = (
     v
-) = serial_solve = L = which = name_pr = eta = beta = namepot = target_energy = dir_to_save = None
+) = name_file_psi = name_file_u = name_hist = L = eta = beta = namepot = dir_to_save = None
 
 print(sys.argv)
 
@@ -57,21 +53,11 @@ for param, is_string, default in params:
         globals()[param] = default
 if namepot is None:
     namepot = f"Na{N_a}x{int(100 * x)}sig{int(10 * sigma)}v{v}"
-if target_energy is None:
-    target_energy = beta + eta * 0
 if dir_to_save is None:
     dir_to_save = data_path
-if N_eig is None:
-    N_eig = int(L**2*beta/(2*np.pi))# trying to get the whole first Landau level.
-if name_pr is None:
-    name_pr="pr{N_eig}eta1e-1beta2e-1"
-if serial_solve:
-    pr=np.fromfile(f"{dir_to_save}/{name_pr}")
-    pr=pr.reshape((-1,2))
-    target_energy=pr[-1,1]#*1.0000001
-    which="LA"
-else:
-    pr=np.array([[]])
+if name_hist is None:
+    print("no name to save the file")
+
 
 print("Creating mesh, time is:", time.time()-t0)
 with open(
@@ -81,27 +67,29 @@ with open(
     Th = pickle.load(f)
     Th.q = L * Th.q
     Th.vols = (L**2) * Th.vols
-
 print("Mesh done, time is:", time.time()-t0)
-# Th=None
-V_unscaled, Th = vth_data(h, namepot, L=L, Th=Th, N_a=N_a)
-V1 = (1 / np.mean(V_unscaled)) * V_unscaled
-print(np.mean(V1))
-time1=time.time()
-ones = np.ones(Th.nq)
 
-fichier=f"{data_path}/20230522_charon/Na400x15sig22v0eta1e-1beta1e-1Symtarget0h1000Neig10.npz"
-fichier_u=f"{data_path}/20230522_charon/u_Na400x15sig22v0L200eta1e-1beta1e-1h1000.npz"
+
+print("Creating potential, time is:", time.time()-t0)
+V_unscaled, Th = vth_data(h, namepot, L=L, Th=Th, N_a=N_a)
+V = (eta / np.mean(V_unscaled)) * V_unscaled
+print("Potential done, time is:", time.time()-t0)
+
+
+fichier=f"{data_path}/{name_file_psi}"
+fichier_u=f"{data_path}/{name_file_u}"
 file= np.load(fichier,allow_pickle=True)
 x_sol,w=file["eig_vec"],file["eig_val"]
-unsuru=np.array(V1)
+unsuru=1/(10**-20+np.real(np.load(fichier_u,allow_pickle=True)["u"]))
 
-potpoints=60
-areapoints=60
+potpoints=200
+areapoints=100
 list_pot_val=np.linspace(0,2.5*eta,potpoints)
+vmax=np.max(V)
 min_unsuru=0.01*int(100*np.min(unsuru))
-list_unsuru=np.linspace(min_unsuru,2.5*eta+beta,potpoints)
-list_exp=np.linspace(0,20,areapoints)
+list_v=np.linspace(0,vmax,potpoints)
+list_unsuru=np.linspace(min_unsuru,vmax+beta,potpoints)
+list_exp=np.linspace(0,30,areapoints)
 list_proba_val=[10**-i for i in list_exp]
 
 # mass lumped matrix m^0
@@ -116,36 +104,32 @@ M = sparse.csc_matrix(
 M.eliminate_zeros()
 m0=np.real(np.sum(M,0))
 
-print("compute pr's, time is:", time.time()-t0)
-#compute0 and store PR's
 
-
-histograms_u,histograms_V,histograms_proba=[],[],[]
+histograms_u,histograms_V,histograms_proba=len(w)*[0],len(w)*[0],len(w)*[0]
 for i,energy in enumerate(w):
     vec2=(x_sol[:,i]*np.conj(x_sol[:,i])).real
-    psi2=np.sum(np.dot(m0,vec2))
+    psi2=np.sum(np.dot(m0,vec2)) 
     proba_density=vec2/psi2
     histogram_u,histogram_V,histogram_proba=[],[],[]
 
     for potential_value in list_pot_val:
-        hist_V=np.where(eta*V1<potential_value,proba_density,0)
+        hist_V=np.where(eta*V<potential_value,proba_density,0)
         point_V=np.array((potential_value,np.sum(np.dot(m0,hist_V))))
         histogram_V.append(point_V)
-    histograms_V.append(np.array[histogram_V])
+    histograms_V[i]=np.array(histogram_V)
     
     for unsuru_value in list_unsuru:
         hist_u=np.where(unsuru<unsuru_value,proba_density,0)
         point_u=np.array((unsuru_value,np.sum(np.dot(m0,hist_u))))
         histogram_u.append(point_u)
-    histograms_u.append(np.array(histogram_u))
+    histograms_u[i]=np.array(histogram_u)
 
     for proba_value in list_proba_val:
         hist_proba=np.where(proba_density>proba_value,1,0)
         point_proba=np.array((proba_value,np.sum(np.dot(m0,hist_proba))))
         histogram_proba.append(point_proba)
-    histograms_proba.append(histogram_proba)
-    
-pr.tofile(f"{dir_to_save}/{name_pr}_readable",sep=" ")
-pr.tofile(f"{dir_to_save}/{name_pr}")
-print("ending at ", time.time()-t0)
-print(pr)
+    histograms_proba[i]=np.array(histogram_proba)
+
+np.savez_compressed(
+        os.path.join(dir_to_save, name_hist), eig_val=w, histograms_proba=histograms_proba, histograms_u=histograms_u,histograms_V=histograms_V
+    )

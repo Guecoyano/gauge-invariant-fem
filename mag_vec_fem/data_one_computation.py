@@ -27,7 +27,7 @@ params = [
     ("target_energy", False, None),
     ("dir_to_save", True, None),
     ("serial_solve", False, False),
-    ("part", False,None)
+    ("part", False,None),
     ("name_eig", True, None),
     ("name_u", True, None),
 ]
@@ -75,7 +75,7 @@ if serial_solve:
     target_energy=w_stored[-1]*1.0000001
     which="LA"
 else:
-    pr=np.array([[]])
+    which="LM"
 
 print("Creating mesh",time.time()-t0)
 with open(
@@ -214,7 +214,7 @@ if eig:
     x_sol[ID, :] = np.reshape(xx, (len(ID), -1))
     print("solving...",time.time()-t0)
     w, x_sol[IDc, :] = eigsh(
-        (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which="LM"
+        (A[IDc])[::, IDc], M=(M[IDc])[::, IDc], k=N_eig, sigma=target_energy, which=which
     )
     Tcpu[3] = time.time() - tstart
 
@@ -274,5 +274,3 @@ if u:
         q=Th.q,
         u=x_sol,
     )
-
-print(w)

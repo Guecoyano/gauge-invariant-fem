@@ -26,14 +26,19 @@ NBATCH=10
 ETA="2e-1"
 BETA="2e-1"
 NCYCLES=12
+#if one passes arguments to the script such as eta, beta, v, and arguments to be passed to the python script, one may use 
+#ETA=$1; BETA=$2; NCYCLES=$3; V=$4; shift; shift; shift; shift
+
 H="1e-3"
 V="Na400x15sig22v0"
 NAME_EIG="${V}Symh1000eta${ETA}beta${BETA}"
 
+echo "DIR=${DIR} NBATCH=$NBATCH ETA=$ETA BETA=$BETA NCYCLES=$NCYCLES H=$H V=$V NAME_EIG=$NAME_EIG"
+
 python mag_vec_fem/data_one_computation.py h=$H N_eig=$NBATCH serial_solve=False dir_to_save=$DIR_TO_SAVE name_eig="${NAME_EIG}part1" eta=$ETA beta=$BETA
 for foo in $(seq 2 $NCYCLES)
 do
-    NAME_EIG="Na400x15sig22${V}Symh1000eta${ETA}beta${BETA}"
+    NAME_EIG="${V}Symh1000eta${ETA}beta${BETA}"
     python mag_vec_fem/data_one_computation.py h=$H N_eig=$NBATCH serial_solve=True eta=$ETA beta=$BETA dir_to_save=$DIR_TO_SAVE name_eig=$NAME_EIG part=$foo
 done
 
