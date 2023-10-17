@@ -26,11 +26,12 @@ NBATCH=10
 ETA="2e-1"
 BETA="2e-1"
 NCYCLES=12
+VERSION=0
 #if one passes arguments to the script such as eta, beta, v, and arguments to be passed to the python script, one may use 
-#ETA=$1; BETA=$2; NCYCLES=$3; V=$4; shift; shift; shift; shift
+#ETA=$1; BETA=$2; NCYCLES=$3; VERSION=$4; shift; shift; shift; shift
 
 H="1e-3"
-V="Na400x15sig22v0"
+V="Na400x15sig22v${VERSION}"
 NAME_EIG="${V}Symh1000eta${ETA}beta${BETA}"
 
 echo "DIR=${DIR} NBATCH=$NBATCH ETA=$ETA BETA=$BETA NCYCLES=$NCYCLES H=$H V=$V NAME_EIG=$NAME_EIG"

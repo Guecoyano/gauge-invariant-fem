@@ -59,7 +59,7 @@ def IgJgP1_OptV3(d, nme, me):
     return Ig, Jg
 
 
-def KgP1_OptV3(Th, D, G, **kwargs):
+"""def KgP1_OptV3(Th, D, G, **kwargs):
     d = Th.d
     ndfe = d + 1
     dtype = kwargs.get("dtype", float)
@@ -78,7 +78,7 @@ def KgP1_OptV3(Th, D, G, **kwargs):
     if D.c != None:
         for i in range(d):
             Kg = Kg + KgP1_OptV3_gduv(Th, D.c[i], G, i, dtype)
-    return Kg
+    return Kg"""
 
 
 def KgP1_OptV3(Th, g, dtype):
