@@ -158,7 +158,7 @@ if u:
     Kg_delta = Kg_kinetic_mag(Th,D,G,float)"""
 
     # RHS for landscapes
-    b = RHS(Th, ones, 1, dtype=dtype, version="OptV3")
+    #b = RHS(Th, ones, 1, dtype=dtype, version="OptV3")
 
 if eig:
     # circulationn of the normalized vector poltential
@@ -267,6 +267,8 @@ if u:
         shape=(Th.nq, Th.nq),
     )
     M_u.eliminate_zeros()
+    b_nomass=np.ones(Th.nq)
+    b=M*b_nomass
     print("computing landscape")
     x_sol, flag = classicSolve(M_u, b, ndof, gD, ID, IDc, complex, SolveOptions)
     np.savez_compressed(
