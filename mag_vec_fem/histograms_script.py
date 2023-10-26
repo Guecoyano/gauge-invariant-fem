@@ -129,7 +129,9 @@ for i,energy in enumerate(w):
         point_proba=np.array((proba_value,np.sum(np.dot(m0,hist_proba))))
         histogram_proba.append(point_proba)
     histograms_proba[i]=np.array(histogram_proba)
+    if i%10==0:
+        print("vector", i)
 
 np.savez_compressed(
-        os.path.join(dir_to_save, name_hist), eig_val=w, histograms_proba=histograms_proba, histograms_u=histograms_u,histograms_V=histograms_V
+        os.path.join(data_path,dir_to_save, name_hist), eig_val=w, histograms_proba=histograms_proba, histograms_u=histograms_u,histograms_V=histograms_V
     )
